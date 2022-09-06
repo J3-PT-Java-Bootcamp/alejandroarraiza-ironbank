@@ -10,7 +10,7 @@
 
 ### Class Diagram
 
-![classes](docs/ironbank.png "Class Diagram")
+![classes](docs/ironbank-classes.png "Class Diagram")
 
 ### System diagram
 

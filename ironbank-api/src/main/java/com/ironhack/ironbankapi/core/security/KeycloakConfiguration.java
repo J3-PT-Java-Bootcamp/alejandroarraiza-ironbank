@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.security;
+package com.ironhack.ironbankapi.core.security;
 
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;

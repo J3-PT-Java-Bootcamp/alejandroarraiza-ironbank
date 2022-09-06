@@ -1,8 +1,7 @@
-package com.ironhack.ironbankapi.controllers;
+package com.ironhack.ironbankapi.core.controllers;
 
-import com.ironhack.ironbankapi.dto.HealthDto;
+import com.ironhack.ironbankapi.core.dto.HealthDto;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

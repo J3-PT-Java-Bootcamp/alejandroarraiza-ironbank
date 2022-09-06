@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.dto;
+package com.ironhack.ironbankapi.core.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
