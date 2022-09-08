@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### custom spring config ###
+./src/main/resources/keycloak-admin-client.properties
