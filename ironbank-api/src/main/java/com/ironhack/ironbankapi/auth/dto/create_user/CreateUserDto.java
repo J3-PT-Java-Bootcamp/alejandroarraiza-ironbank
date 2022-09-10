@@ -15,6 +15,9 @@ public abstract class CreateUserDto {
     @NotEmpty
     private String name;
 
+    @NotEmpty
+    private String email;
+
     private UserRole userRole;
 
 }

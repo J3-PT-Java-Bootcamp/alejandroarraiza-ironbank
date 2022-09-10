@@ -11,8 +11,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 public class CreateAdminDto extends CreateUserDto{
 
-    public CreateAdminDto(@NotEmpty String name, UserRole userRole) {
-        super(name, userRole);
+    public CreateAdminDto(@NotEmpty String name, @NotEmpty String email, UserRole userRole) {
+        super(name, email, userRole);
     }
-
 }

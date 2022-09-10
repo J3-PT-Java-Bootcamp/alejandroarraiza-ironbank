@@ -34,13 +34,15 @@ public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapt
                 .disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/user/*").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/*").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/docs/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
     }
 
 }
