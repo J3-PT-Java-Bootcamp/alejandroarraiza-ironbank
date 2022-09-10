@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.dto;
+package com.ironhack.ironbankapi.auth.dto.keycloak;
 
 import lombok.*;
 

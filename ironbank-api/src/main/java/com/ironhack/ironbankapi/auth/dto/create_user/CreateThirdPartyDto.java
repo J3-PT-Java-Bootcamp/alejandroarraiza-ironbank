@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.dto;
+package com.ironhack.ironbankapi.auth.dto.create_user;
 
 import lombok.*;
 import org.hibernate.validator.constraints.Length;

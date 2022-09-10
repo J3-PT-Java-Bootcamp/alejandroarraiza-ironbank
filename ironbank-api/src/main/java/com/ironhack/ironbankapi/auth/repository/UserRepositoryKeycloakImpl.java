@@ -1,27 +1,19 @@
 package com.ironhack.ironbankapi.auth.repository;
 
-import com.ironhack.ironbankapi.auth.dto.KeycloakUserDto;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.keycloak.OAuth2Constants;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
+import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
+
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Repository
 @Transactional(readOnly = true)
 @PropertySource("classpath:keycloak-admin-client.properties")
 public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
-
-    static Keycloak keycloak;
 
     @Value("${keycloakAdmin.serverUrl}")
     String serverUrl;
@@ -31,49 +23,34 @@ public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
     String clientId;
     @Value("${keycloakAdmin.clientSecret}")
     String clientSecret;
-    @Value("${keycloakAdmin.adminUsername}")
-    String userName;
-    @Value("${keycloakAdmin.adminPassword}")
-    String password;
 
-    public Keycloak getInstance() {
-        if (keycloak == null) {
+    private final WebClient webClient;
 
-            keycloak = KeycloakBuilder.builder()
-                    .serverUrl(serverUrl)
-                    .realm(realm)
-                    .grantType(OAuth2Constants.PASSWORD)
-                    .username(userName)
-                    .password(password)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
-                    .build();
-        }
-        return keycloak;
+    public UserRepositoryKeycloakImpl(WebClient.Builder webClientBuilder,
+            @Value("${keycloakAdmin.serverUrl}") String serverUrl) {
+        this.webClient = webClientBuilder.baseUrl(serverUrl).build();
     }
 
     @Override
-    public KeycloakUserDto createUserInKeycloak(KeycloakUserDto keycloakUserDto) {
-        CredentialRepresentation passwordCredentials = new CredentialRepresentation();
-        passwordCredentials.setTemporary(false);
-        passwordCredentials.setType(CredentialRepresentation.PASSWORD);
-        passwordCredentials.setValue(keycloakUserDto.getPassword());
+    public String createUserInKeycloak(KeycloakUserDto keycloakUserDto) {
+        // TODO: connect to keycloak api rest and create user
 
-        UserRepresentation user = new UserRepresentation();
-        user.setUsername(keycloakUserDto.getUserName());
-        user.setFirstName(keycloakUserDto.getUserName());
-        user.setLastName(keycloakUserDto.getUserName());
-        user.setEmail(keycloakUserDto.getUserName() + "@gmail.com");
-        user.setCredentials(Collections.singletonList(passwordCredentials));
-        user.setEnabled(true);
+        // var body = new MultipartBodyBuilder();
+        // body.part("grant_type", "client_credentials");
+        // body.part("client_id", clientId);
+        // body.part("client_secret", clientSecret);
 
-        UsersResource instance = getInstance().realm(realm).users();
-        try (var response = instance.create(user)) {
-            System.out.println(response.getEntity());
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return keycloakUserDto;
+        // var response = webClient.post()
+        // .uri("/auth/realms/%s/protocol/openid-connect/token".formatted(realm))
+        // .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+        // .body(BodyInserters.fromMultipartData(body.build()))
+        // .retrieve()
+        // .bodyToMono(String.class)
+        // .block();
+
+        // System.out.println(response);
+
+        return UUID.randomUUID().toString();
+
     }
 }

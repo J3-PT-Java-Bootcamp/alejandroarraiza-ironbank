@@ -1,9 +1,9 @@
 package com.ironhack.ironbankapi.auth.repository;
 
-import com.ironhack.ironbankapi.auth.dto.KeycloakUserDto;
+import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
 
 public interface UserRepositoryKeycloak {
 
-    KeycloakUserDto createUserInKeycloak(KeycloakUserDto keycloakUserDto);
+    String createUserInKeycloak(KeycloakUserDto keycloakUserDto);
 
 }

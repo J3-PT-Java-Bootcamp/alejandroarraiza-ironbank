@@ -1,5 +1,6 @@
 package com.ironhack.ironbankapi.auth.service;
 
+import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
 import com.ironhack.ironbankapi.auth.mapper.UserMapper;
 import com.ironhack.ironbankapi.auth.model.User;
 import com.ironhack.ironbankapi.auth.repository.UserRepository;
@@ -14,8 +15,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(User userToBeCreated) {
-        userRepository.createUserInKeycloak(UserMapper.toKeycloakUserDto(userToBeCreated));
+    public User createUser(User userToBeCreated) throws IronbankAuthException {
+        userToBeCreated.setId(userRepository.createUserInKeycloak(UserMapper.toKeycloakUserDto(userToBeCreated)));
+
+        if (userToBeCreated.getId() == null) {
+            throw new IronbankAuthException();
+        } else {
+            userToBeCreated = userRepository.save(userToBeCreated);
+        }
+
         return userToBeCreated;
     }
 

@@ -1,9 +1,9 @@
 package com.ironhack.ironbankapi.auth.mapper;
 
-import com.ironhack.ironbankapi.auth.dto.CreateAccountHolderDto;
-import com.ironhack.ironbankapi.auth.dto.CreateAdminDto;
-import com.ironhack.ironbankapi.auth.dto.CreateThirdPartyDto;
-import com.ironhack.ironbankapi.auth.dto.KeycloakUserDto;
+import com.ironhack.ironbankapi.auth.dto.create_user.CreateAccountHolderDto;
+import com.ironhack.ironbankapi.auth.dto.create_user.CreateAdminDto;
+import com.ironhack.ironbankapi.auth.dto.create_user.CreateThirdPartyDto;
+import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
 import com.ironhack.ironbankapi.auth.model.Address;
 import com.ironhack.ironbankapi.auth.model.User;
 

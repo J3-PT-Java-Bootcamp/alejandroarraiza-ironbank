@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.dto;
+package com.ironhack.ironbankapi.auth.dto.create_user;
 
 import com.ironhack.ironbankapi.auth.model.UserRole;
 import lombok.*;
