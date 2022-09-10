@@ -15,6 +15,9 @@ import java.time.LocalDate;
 @ToString
 public class User {
 
+    /**
+     * This field will be the keycloak user id
+     */
     @Id
     @Column(nullable = false)
     private String id;

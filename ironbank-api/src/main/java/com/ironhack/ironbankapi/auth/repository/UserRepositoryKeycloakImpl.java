@@ -63,6 +63,8 @@ public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
         UserRepresentation user = new UserRepresentation();
         user.setUsername(keycloakUserDto.getUserName());
         user.setFirstName(keycloakUserDto.getUserName());
+        user.setLastName(keycloakUserDto.getUserName());
+        user.setEmail(keycloakUserDto.getUserName() + "@gmail.com");
         user.setCredentials(Collections.singletonList(passwordCredentials));
         user.setEnabled(true);
 
