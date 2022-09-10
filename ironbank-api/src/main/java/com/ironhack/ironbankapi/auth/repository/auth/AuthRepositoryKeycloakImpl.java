@@ -1,19 +1,17 @@
-package com.ironhack.ironbankapi.auth.repository;
+package com.ironhack.ironbankapi.auth.repository.auth;
 
 import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
-
-import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.UUID;
+
 @Repository
-@Transactional(readOnly = true)
 @PropertySource("classpath:keycloak-admin-client.properties")
-public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
+public class AuthRepositoryKeycloakImpl implements AuthRepositoryKeycloak{
 
     @Value("${keycloakAdmin.serverUrl}")
     String serverUrl;
@@ -26,14 +24,13 @@ public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
 
     private final WebClient webClient;
 
-    public UserRepositoryKeycloakImpl(WebClient.Builder webClientBuilder,
-            @Value("${keycloakAdmin.serverUrl}") String serverUrl) {
+    public AuthRepositoryKeycloakImpl(WebClient.Builder webClientBuilder,
+                                      @Value("${keycloakAdmin.serverUrl}") String serverUrl) {
         this.webClient = webClientBuilder.baseUrl(serverUrl).build();
     }
-
     @Override
-    public String createUserInKeycloak(KeycloakUserDto keycloakUserDto) {
-        // TODO: connect to keycloak api rest and create user
+    public String getToken(String email, String password) {
+        // TODO: connect to keycloak api rest and get token for credentials
 
         // var body = new MultipartBodyBuilder();
         // body.part("grant_type", "client_credentials");
@@ -51,6 +48,5 @@ public class UserRepositoryKeycloakImpl implements UserRepositoryKeycloak {
         // System.out.println(response);
 
         return UUID.randomUUID().toString();
-
     }
 }

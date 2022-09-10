@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.repository;
+package com.ironhack.ironbankapi.auth.repository.user;
 
 import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
 
