@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.model;
+package com.ironhack.ironbankapi.core.model.user;
 
 import lombok.*;
 

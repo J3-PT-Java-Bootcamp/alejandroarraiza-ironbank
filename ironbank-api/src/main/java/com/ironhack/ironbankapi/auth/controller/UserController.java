@@ -5,7 +5,7 @@ import com.ironhack.ironbankapi.auth.dto.create_user.CreateAdminDto;
 import com.ironhack.ironbankapi.auth.dto.create_user.CreateThirdPartyDto;
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
 import com.ironhack.ironbankapi.auth.mapper.UserMapper;
-import com.ironhack.ironbankapi.auth.model.UserRole;
+import com.ironhack.ironbankapi.core.model.user.UserRole;
 import com.ironhack.ironbankapi.auth.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

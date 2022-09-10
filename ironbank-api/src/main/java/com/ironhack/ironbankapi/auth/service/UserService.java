@@ -2,7 +2,7 @@ package com.ironhack.ironbankapi.auth.service;
 
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
 import com.ironhack.ironbankapi.auth.mapper.UserMapper;
-import com.ironhack.ironbankapi.auth.model.User;
+import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.auth.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 

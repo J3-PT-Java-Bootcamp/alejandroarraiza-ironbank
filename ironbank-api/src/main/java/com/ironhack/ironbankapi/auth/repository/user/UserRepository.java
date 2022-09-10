@@ -1,6 +1,6 @@
 package com.ironhack.ironbankapi.auth.repository.user;
 
-import com.ironhack.ironbankapi.auth.model.User;
+import com.ironhack.ironbankapi.core.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -4,8 +4,8 @@ import com.ironhack.ironbankapi.auth.dto.create_user.CreateAccountHolderDto;
 import com.ironhack.ironbankapi.auth.dto.create_user.CreateAdminDto;
 import com.ironhack.ironbankapi.auth.dto.create_user.CreateThirdPartyDto;
 import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
-import com.ironhack.ironbankapi.auth.model.Address;
-import com.ironhack.ironbankapi.auth.model.User;
+import com.ironhack.ironbankapi.core.model.user.Address;
+import com.ironhack.ironbankapi.core.model.user.User;
 
 public abstract class UserMapper {
 
