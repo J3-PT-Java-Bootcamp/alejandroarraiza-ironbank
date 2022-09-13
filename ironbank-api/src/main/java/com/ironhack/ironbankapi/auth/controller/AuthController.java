@@ -3,10 +3,8 @@ package com.ironhack.ironbankapi.auth.controller;
 import com.ironhack.ironbankapi.auth.dto.auth.GetTokenRequest;
 import com.ironhack.ironbankapi.auth.dto.auth.GetTokenResponse;
 import com.ironhack.ironbankapi.auth.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 

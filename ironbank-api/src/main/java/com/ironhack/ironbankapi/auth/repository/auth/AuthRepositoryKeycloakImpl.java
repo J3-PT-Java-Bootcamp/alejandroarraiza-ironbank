@@ -1,11 +1,7 @@
 package com.ironhack.ironbankapi.auth.repository.auth;
 
 import com.ironhack.ironbankapi.auth.repository.KeycloakProvider;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.UUID;
 
