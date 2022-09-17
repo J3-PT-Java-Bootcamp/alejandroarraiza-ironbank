@@ -30,7 +30,7 @@ public class AccountController {
     }
 
     @PostMapping("/savings")
-    SavingsAccount createSavingsAccount(@Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto) {
+    SavingsAccount createSavingsAccount(@Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto) throws IronbankAccountException {
         return this.accountService.createSavingsAccount(createSavingsAccountDto);
     }
 
