@@ -3,6 +3,7 @@ package com.ironhack.ironbankapi.accounts.service;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
+import com.ironhack.ironbankapi.accounts.dto.UpdateAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.*;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
@@ -210,21 +211,33 @@ public class AccountService {
 
     public Account getAccountByAccountNumber(String accountNumber) throws IronbankAccountException {
         var accountNumberFound = accountNumberRepository.findById(accountNumber);
-        if(accountNumberFound.isEmpty()) {
+        if (accountNumberFound.isEmpty()) {
             throw new IronbankAccountException("Unexpected account number");
         }
 
         Account account;
         account = checkingAccountRepository.findByAccountNumber(accountNumberFound.get());
-        if(account == null) {
+        if (account == null) {
             account = savingsAccountRepository.findByAccountNumber(accountNumberFound.get());
         }
-        if(account == null) {
+        if (account == null) {
             account = creditAccountRepository.findByAccountNumber(accountNumberFound.get());
         }
-        if(account == null) {
+        if (account == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return account;
+    }
+
+    public void updateAccount(String accountNumber, UpdateAccountDto updateAccountDto) throws IronbankAccountException {
+        Account account = getAccountByAccountNumber(accountNumber);
+        account.setBalance(updateAccountDto.getBalance());
+        if (account instanceof CheckingAccount) {
+            checkingAccountRepository.save((CheckingAccount) account);
+        } else if (account instanceof SavingsAccount) {
+            savingsAccountRepository.save((SavingsAccount) account);
+        } else if (account instanceof CreditAccount) {
+            creditAccountRepository.save((CreditAccount) account);
+        }
     }
 }

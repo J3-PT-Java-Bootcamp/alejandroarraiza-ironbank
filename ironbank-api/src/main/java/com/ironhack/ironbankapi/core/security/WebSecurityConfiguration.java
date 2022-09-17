@@ -39,6 +39,7 @@ public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapt
                 .antMatchers(HttpMethod.GET, "/docs/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/account/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/account/**").permitAll()
+                .antMatchers(HttpMethod.PATCH, "/account/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
