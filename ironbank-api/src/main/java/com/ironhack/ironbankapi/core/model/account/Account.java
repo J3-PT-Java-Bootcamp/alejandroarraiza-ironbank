@@ -21,9 +21,10 @@ public abstract class Account {
 
     public static final Money PENALTY_FEE = new Money(new BigDecimal("40"));
 
-    @Id
-    @Column(nullable = false)
-    private String accountNumber;
+
+    @OneToOne
+    @JoinColumn(name = "account_number_iban")
+    private AccountNumber accountNumber;
 
     @Embedded
     @AttributeOverride(name = "amount", column = @Column(name = "balance"))
@@ -50,7 +51,7 @@ public abstract class Account {
 
     private String secretKey;
 
-    public Account(String accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey) {
+    public Account(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey) {
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.primaryOwner = primaryOwner;

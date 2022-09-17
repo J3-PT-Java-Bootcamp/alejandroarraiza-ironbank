@@ -26,10 +26,15 @@ public class CheckingAccount extends Account{
 
     public static final int STUDENT_AGE_LIMIT = 24;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
     @Enumerated(EnumType.STRING)
     private CheckingAccountType checkingAccountType;
 
-    public CheckingAccount(String accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, CheckingAccountType checkingAccountType) {
+    public CheckingAccount(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, CheckingAccountType checkingAccountType) {
         super(accountNumber, balance, primaryOwner, secondaryOwner, status, secretKey);
         this.checkingAccountType = checkingAccountType;
     }

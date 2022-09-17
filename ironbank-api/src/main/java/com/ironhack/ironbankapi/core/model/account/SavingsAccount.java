@@ -27,12 +27,17 @@ public class SavingsAccount extends Account {
     public static final Money DEFAULT_MINIMUM_BALANCE = new Money(new BigDecimal("1000"));
     public static final Money MIN_MINIMUM_BALANCE = new Money(new BigDecimal("100"));
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
     @Embedded
     @AttributeOverride(name = "amount", column = @Column(name = "minimum_balance"))
     private Money minimumBalance;
     private double interestRate;
 
-    public SavingsAccount(String accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, Money minimumBalance, double interestRate) {
+    public SavingsAccount(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, Money minimumBalance, double interestRate) {
         super(accountNumber, balance, primaryOwner, secondaryOwner, status, secretKey);
         this.minimumBalance = minimumBalance;
         this.interestRate = interestRate;

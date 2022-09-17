@@ -6,6 +6,7 @@ import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.*;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
+import com.ironhack.ironbankapi.core.repository.account.AccountNumberRepository;
 import com.ironhack.ironbankapi.core.repository.account.CheckingAccountRepository;
 import com.ironhack.ironbankapi.core.repository.account.CreditAccountRepository;
 import com.ironhack.ironbankapi.core.repository.account.SavingsAccountRepository;
@@ -27,11 +28,14 @@ public class AccountService {
 
     final SavingsAccountRepository savingsAccountRepository;
 
-    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository, CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository) {
+    final AccountNumberRepository accountNumberRepository;
+
+    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository, CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository, AccountNumberRepository accountNumberRepository) {
         this.userRepository = userRepository;
         this.checkingAccountRepository = checkingAccountRepository;
         this.creditAccountRepository = creditAccountRepository;
         this.savingsAccountRepository = savingsAccountRepository;
+        this.accountNumberRepository = accountNumberRepository;
     }
 
     public CheckingAccount createCheckingAccount(CreateCheckingAccountDto createCheckingAccountDto) throws IronbankAccountException {
@@ -50,8 +54,11 @@ public class AccountService {
 
         var secondaryOwner = userRepository.findById(createCheckingAccountDto.getSecondaryOwnerId());
 
+        AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
+        accountNumberRepository.save(accountNumber);
+
         var account = new CheckingAccount(
-                Iban.random().toString(),
+                accountNumber,
                 createCheckingAccountDto.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
@@ -90,8 +97,11 @@ public class AccountService {
 
         var secondaryOwner = userRepository.findById(createCreditAccount.getSecondaryOwnerId());
 
+        AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
+        accountNumberRepository.save(accountNumber);
+
         var account = new CreditAccount(
-                Iban.random().toString(),
+                accountNumber,
                 createCreditAccount.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
@@ -131,8 +141,11 @@ public class AccountService {
 
         var secondaryOwner = userRepository.findById(createSavingsAccountDto.getSecondaryOwnerId());
 
+        AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
+        accountNumberRepository.save(accountNumber);
+
         var account = new SavingsAccount(
-                Iban.random().toString(),
+                accountNumber,
                 createSavingsAccountDto.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
