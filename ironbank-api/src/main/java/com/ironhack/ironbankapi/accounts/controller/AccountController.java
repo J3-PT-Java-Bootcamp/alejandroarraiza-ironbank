@@ -1,10 +1,12 @@
 package com.ironhack.ironbankapi.accounts.controller;
 
+import com.ironhack.ironbankapi.accounts.dto.AccountsResponseDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.accounts.service.AccountService;
+import com.ironhack.ironbankapi.core.model.account.Account;
 import com.ironhack.ironbankapi.core.model.account.CheckingAccount;
 import com.ironhack.ironbankapi.core.model.account.CreditAccount;
 import com.ironhack.ironbankapi.core.model.account.SavingsAccount;
@@ -40,18 +42,27 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/balance")
-    void getAccountBalance(@PathVariable String accountNumber) {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+    String getAccountBalance(@PathVariable String accountNumber) throws IronbankAccountException {
+        Account account = accountService.getAccountByAccountNumber(accountNumber);
+        return account.getBalance().getAmount().toString();
     }
 
     @GetMapping("/all")
-    void getAllAccounts() {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+    AccountsResponseDto getAllAccounts() {
+        return new AccountsResponseDto(
+                accountService.getAllCheckingAccounts(),
+                accountService.getAllSavingsAccounts(),
+                accountService.getAllCreditAccounts()
+        );
     }
 
     @GetMapping("/by-user/{userId}")
-    void getUserAccounts(@PathVariable String userId) {
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
+    AccountsResponseDto getUserAccounts(@PathVariable String userId) {
+        return new AccountsResponseDto(
+                accountService.getAllCheckingAccountsByUserId(userId),
+                accountService.getAllSavingsAccountsByUserId(userId),
+                accountService.getAllCreditAccountsByUserId(userId)
+        );
     }
 
 }
