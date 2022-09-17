@@ -1,6 +1,6 @@
-package com.ironhack.ironbankapi.auth.repository.auth;
+package com.ironhack.ironbankapi.core.repository.auth;
 
-import com.ironhack.ironbankapi.auth.repository.KeycloakProvider;
+import com.ironhack.ironbankapi.core.repository.KeycloakProvider;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;

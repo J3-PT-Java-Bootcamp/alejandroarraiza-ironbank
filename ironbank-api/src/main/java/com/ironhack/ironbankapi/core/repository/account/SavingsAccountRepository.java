@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.accounts.repository;
+package com.ironhack.ironbankapi.core.repository.account;
 
 import com.ironhack.ironbankapi.core.model.account.SavingsAccount;
 import org.springframework.data.jpa.repository.JpaRepository;

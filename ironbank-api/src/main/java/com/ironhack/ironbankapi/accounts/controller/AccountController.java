@@ -3,6 +3,7 @@ package com.ironhack.ironbankapi.accounts.controller;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
+import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.accounts.service.AccountService;
 import com.ironhack.ironbankapi.core.model.account.CheckingAccount;
 import com.ironhack.ironbankapi.core.model.account.CreditAccount;
@@ -24,7 +25,7 @@ public class AccountController {
     }
 
     @PostMapping("/checking")
-    CheckingAccount createCheckingAccount(@Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto) {
+    CheckingAccount createCheckingAccount(@Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto) throws IronbankAccountException {
         return this.accountService.createCheckingAccount(createCheckingAccountDto);
     }
 
@@ -34,7 +35,7 @@ public class AccountController {
     }
 
     @PostMapping("/credit")
-    CreditAccount createCreditAccount(@Valid @RequestBody CreateCreditAccount createCreditAccount) {
+    CreditAccount createCreditAccount(@Valid @RequestBody CreateCreditAccount createCreditAccount) throws IronbankAccountException {
         return this.accountService.createCreditAccount(createCreditAccount);
     }
 

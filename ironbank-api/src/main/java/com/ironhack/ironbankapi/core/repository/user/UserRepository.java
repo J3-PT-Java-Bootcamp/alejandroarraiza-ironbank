@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.repository.user;
+package com.ironhack.ironbankapi.core.repository.user;
 
 import com.ironhack.ironbankapi.core.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

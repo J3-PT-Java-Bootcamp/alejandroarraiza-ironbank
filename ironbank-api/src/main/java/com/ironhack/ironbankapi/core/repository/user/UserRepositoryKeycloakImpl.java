@@ -1,8 +1,8 @@
-package com.ironhack.ironbankapi.auth.repository.user;
+package com.ironhack.ironbankapi.core.repository.user;
 
 import com.ironhack.ironbankapi.auth.dto.keycloak.KeycloakUserDto;
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
-import com.ironhack.ironbankapi.auth.repository.KeycloakProvider;
+import com.ironhack.ironbankapi.core.repository.KeycloakProvider;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

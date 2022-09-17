@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.repository.auth;
+package com.ironhack.ironbankapi.core.repository.auth;
 
 import org.springframework.stereotype.Repository;
 

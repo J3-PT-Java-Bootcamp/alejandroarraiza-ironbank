@@ -1,4 +1,4 @@
-package com.ironhack.ironbankapi.auth.repository;
+package com.ironhack.ironbankapi.core.repository;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

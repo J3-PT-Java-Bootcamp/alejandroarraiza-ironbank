@@ -2,7 +2,7 @@ package com.ironhack.ironbankapi.auth.service;
 
 import com.ironhack.ironbankapi.auth.dto.auth.GetTokenRequest;
 import com.ironhack.ironbankapi.auth.dto.auth.GetTokenResponse;
-import com.ironhack.ironbankapi.auth.repository.auth.AuthRepositoryKeycloak;
+import com.ironhack.ironbankapi.core.repository.auth.AuthRepositoryKeycloak;
 import org.springframework.stereotype.Service;
 
 @Service
