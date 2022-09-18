@@ -1,6 +1,6 @@
 package com.ironhack.ironbankapi.accounts.dto;
 
-import com.ironhack.ironbankapi.core.model.common.Money;
+import com.ironhack.ironbankapi.core.model.transaction.TransactionResult;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class UpdateAccountDto {
+public class TransactionResultDto {
 
-    private Money balance;
+    private TransactionResult transactionResult;
 
 }

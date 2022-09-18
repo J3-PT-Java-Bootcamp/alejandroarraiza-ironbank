@@ -3,9 +3,9 @@ package com.ironhack.ironbankapi.accounts.service;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
-import com.ironhack.ironbankapi.accounts.dto.UpdateAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.*;
+import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
 import com.ironhack.ironbankapi.core.repository.account.AccountNumberRepository;
 import com.ironhack.ironbankapi.core.repository.account.CheckingAccountRepository;
@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class AccountService {
 
     final AccountNumberRepository accountNumberRepository;
 
-    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository, CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository, AccountNumberRepository accountNumberRepository) {
+
+    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository, CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository, AccountNumberRepository accountNumberRepository, TransactionService transactionService) {
         this.userRepository = userRepository;
         this.checkingAccountRepository = checkingAccountRepository;
         this.creditAccountRepository = creditAccountRepository;
@@ -64,15 +66,18 @@ public class AccountService {
 
         var account = new CheckingAccount(
                 accountNumber,
-                createCheckingAccountDto.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
                 AccountStatus.ACTIVE,
                 createCheckingAccountDto.getSecretKey(),
-                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? CheckingAccountType.STUDENT : CheckingAccountType.DEFAULT
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? CheckingAccountType.STUDENT : CheckingAccountType.DEFAULT,
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0)) : CheckingAccount.MINIMUM_BALANCE,
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0)) : CheckingAccount.MONTHLY_MAINTENANCE_FEE
         );
 
-        return checkingAccountRepository.save(account);
+        account = checkingAccountRepository.save(account);
+
+        return account;
 
     }
 
@@ -107,7 +112,6 @@ public class AccountService {
 
         var account = new CreditAccount(
                 accountNumber,
-                createCreditAccount.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
                 AccountStatus.ACTIVE,
@@ -116,7 +120,9 @@ public class AccountService {
                 createCreditAccount.getInterestRate()
         );
 
-        return creditAccountRepository.save(account);
+        account = creditAccountRepository.save(account);
+
+        return account;
 
     }
 
@@ -151,7 +157,6 @@ public class AccountService {
 
         var account = new SavingsAccount(
                 accountNumber,
-                createSavingsAccountDto.getBalance(),
                 primaryOwner,
                 secondaryOwner.orElse(null),
                 AccountStatus.ACTIVE,
@@ -160,7 +165,9 @@ public class AccountService {
                 createSavingsAccountDto.getInterestRate()
         );
 
-        return savingsAccountRepository.save(account);
+        account = savingsAccountRepository.save(account);
+
+        return account;
 
     }
 
@@ -229,15 +236,53 @@ public class AccountService {
         return account;
     }
 
-    public void updateAccount(String accountNumber, UpdateAccountDto updateAccountDto) throws IronbankAccountException {
-        Account account = getAccountByAccountNumber(accountNumber);
-        account.setBalance(updateAccountDto.getBalance());
-        if (account instanceof CheckingAccount) {
-            checkingAccountRepository.save((CheckingAccount) account);
-        } else if (account instanceof SavingsAccount) {
-            savingsAccountRepository.save((SavingsAccount) account);
-        } else if (account instanceof CreditAccount) {
-            creditAccountRepository.save((CreditAccount) account);
+//    public void updateAccount(String accountNumber, UpdateAccountDto updateAccountDto) throws IronbankAccountException {
+//        Account account = getAccountByAccountNumber(accountNumber);
+//        Transaction transaction = TransactionMapper.mapFromAccountUpdated(account, updateAccountDto.getBalance());
+//
+//        if (account instanceof CheckingAccount) {
+//            System.out.println(updateAccountDto.getBalance());
+//            System.out.println(((CheckingAccount) account).getMinimumBalance());
+//            if (updateAccountDto.getBalance().getAmount().compareTo(((CheckingAccount) account).getMinimumBalance().getAmount()) < 0) {
+//                transaction.setTransactionResult(TransactionResult.REJECTED);
+//            } else {
+//                account.setBalance(updateAccountDto.getBalance());
+//                checkingAccountRepository.save((CheckingAccount) account);
+//            }
+//        } else if (account instanceof SavingsAccount) {
+//            if (updateAccountDto.getBalance().getAmount().compareTo(((SavingsAccount) account).getMinimumBalance().getAmount()) < 0) {
+//                transaction.setTransactionResult(TransactionResult.REJECTED);
+//            } else {
+//                account.setBalance(updateAccountDto.getBalance());
+//                savingsAccountRepository.save((SavingsAccount) account);
+//            }
+//        } else if (account instanceof CreditAccount) {
+//            account.setBalance(updateAccountDto.getBalance());
+//            creditAccountRepository.save((CreditAccount) account);
+//        } else {
+//            transaction.setTransactionResult(TransactionResult.REJECTED);
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+//        }
+//        transactionService.saveTransaction(transaction);
+//        if(transaction.getTransactionResult() == TransactionResult.REJECTED) {
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+//        }
+//    }
+
+    public Money getAccountBalance(String accountNumber) {
+        AccountNumber accountNumberFound = accountNumberRepository.findById(accountNumber).orElseThrow();
+        Account account;
+        account = checkingAccountRepository.findByAccountNumber(accountNumberFound);
+        if (account == null) {
+            account = savingsAccountRepository.findByAccountNumber(accountNumberFound);
         }
+        if (account == null) {
+            account = creditAccountRepository.findByAccountNumber(accountNumberFound);
+        }
+        if (account == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return new Money(account.getBalance());
+
     }
 }

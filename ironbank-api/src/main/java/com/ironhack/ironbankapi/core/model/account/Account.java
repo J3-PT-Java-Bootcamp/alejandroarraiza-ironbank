@@ -2,12 +2,10 @@ package com.ironhack.ironbankapi.core.model.account;
 
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.user.User;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -26,9 +24,8 @@ public abstract class Account {
     @JoinColumn(name = "account_number_iban")
     private AccountNumber accountNumber;
 
-    @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "balance"))
-    private Money balance;
+    @Formula("(SELECT sum(t.amount) from transaction t where t.account_number_iban_destination = account_number_iban and t.transaction_result = 'EXECUTED')")
+    private BigDecimal balance;
 
     @ManyToOne
     @JoinColumn(name = "primary_owner_id")
@@ -51,9 +48,8 @@ public abstract class Account {
 
     private String secretKey;
 
-    public Account(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey) {
+    public Account(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey) {
         this.accountNumber = accountNumber;
-        this.balance = balance;
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
         this.status = status;

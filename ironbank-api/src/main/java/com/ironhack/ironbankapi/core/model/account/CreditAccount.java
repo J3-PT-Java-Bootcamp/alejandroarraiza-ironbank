@@ -35,8 +35,8 @@ public class CreditAccount extends Account{
     private Money creditLimit;
     private double interestRate;
 
-    public CreditAccount(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, Money creditLimit, double interestRate) {
-        super(accountNumber, balance, primaryOwner, secondaryOwner, status, secretKey);
+    public CreditAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, Money creditLimit, double interestRate) {
+        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey);
         this.creditLimit = creditLimit;
         this.interestRate = interestRate;
     }

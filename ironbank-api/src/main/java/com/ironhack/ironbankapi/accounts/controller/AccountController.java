@@ -3,11 +3,12 @@ package com.ironhack.ironbankapi.accounts.controller;
 import com.ironhack.ironbankapi.accounts.dto.*;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.accounts.service.AccountService;
+import com.ironhack.ironbankapi.accounts.service.TransactionService;
 import com.ironhack.ironbankapi.core.model.account.Account;
 import com.ironhack.ironbankapi.core.model.account.CheckingAccount;
 import com.ironhack.ironbankapi.core.model.account.CreditAccount;
 import com.ironhack.ironbankapi.core.model.account.SavingsAccount;
-import org.springframework.http.HttpStatus;
+import com.ironhack.ironbankapi.core.model.common.Money;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,23 +19,35 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    public AccountController(AccountService accountService) {
+    private final TransactionService transactionService;
+
+    public AccountController(AccountService accountService, TransactionService transactionService) {
         this.accountService = accountService;
+        this.transactionService = transactionService;
     }
 
     @PostMapping("/checking")
-    CheckingAccount createCheckingAccount(@Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto) throws IronbankAccountException {
-        return this.accountService.createCheckingAccount(createCheckingAccountDto);
+    CheckingAccount createCheckingAccount(@Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto)
+            throws IronbankAccountException {
+        var account = this.accountService.createCheckingAccount(createCheckingAccountDto);
+        transactionService.logAccountCreated(account, createCheckingAccountDto.getBalance().getAmount());
+        return account;
     }
 
     @PostMapping("/savings")
-    SavingsAccount createSavingsAccount(@Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto) throws IronbankAccountException {
-        return this.accountService.createSavingsAccount(createSavingsAccountDto);
+    SavingsAccount createSavingsAccount(@Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto)
+            throws IronbankAccountException {
+        var account = this.accountService.createSavingsAccount(createSavingsAccountDto);
+        transactionService.logAccountCreated(account, createSavingsAccountDto.getBalance().getAmount());
+        return account;
     }
 
     @PostMapping("/credit")
-    CreditAccount createCreditAccount(@Valid @RequestBody CreateCreditAccount createCreditAccount) throws IronbankAccountException {
-        return this.accountService.createCreditAccount(createCreditAccount);
+    CreditAccount createCreditAccount(@Valid @RequestBody CreateCreditAccount createCreditAccount)
+            throws IronbankAccountException {
+        var account = this.accountService.createCreditAccount(createCreditAccount);
+        transactionService.logAccountCreated(account, createCreditAccount.getBalance().getAmount());
+        return account;
     }
 
     @GetMapping("/{accountNumber}")
@@ -43,15 +56,8 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/balance")
-    String getAccountBalance(@PathVariable String accountNumber) throws IronbankAccountException {
-        Account account = accountService.getAccountByAccountNumber(accountNumber);
-        return account.getBalance().getAmount().toString();
-    }
-
-    @PatchMapping("/{accountNumber}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    void updateAccountPartial(@PathVariable String accountNumber, @RequestBody UpdateAccountDto updateAccountDto) throws IronbankAccountException {
-        accountService.updateAccount(accountNumber, updateAccountDto);
+    Money getAccountBalance(@PathVariable String accountNumber) throws IronbankAccountException {
+        return accountService.getAccountBalance(accountNumber);
     }
 
     @GetMapping("/all")
@@ -59,8 +65,7 @@ public class AccountController {
         return new AccountsResponseDto(
                 accountService.getAllCheckingAccounts(),
                 accountService.getAllSavingsAccounts(),
-                accountService.getAllCreditAccounts()
-        );
+                accountService.getAllCreditAccounts());
     }
 
     @GetMapping("/by-user/{userId}")
@@ -68,8 +73,7 @@ public class AccountController {
         return new AccountsResponseDto(
                 accountService.getAllCheckingAccountsByUserId(userId),
                 accountService.getAllSavingsAccountsByUserId(userId),
-                accountService.getAllCreditAccountsByUserId(userId)
-        );
+                accountService.getAllCreditAccountsByUserId(userId));
     }
 
 }

@@ -5,6 +5,7 @@ import com.ironhack.ironbankapi.auth.dto.create_user.CreateAdminDto;
 import com.ironhack.ironbankapi.auth.dto.create_user.CreateThirdPartyDto;
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
 import com.ironhack.ironbankapi.auth.mapper.UserMapper;
+import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
 import com.ironhack.ironbankapi.auth.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -25,10 +26,10 @@ public class UserController {
 
     @PostMapping("/admin")
     @ResponseStatus(HttpStatus.CREATED)
-    String createAdmin(@Valid @RequestBody CreateAdminDto createAdminDto) {
+    User createAdmin(@Valid @RequestBody CreateAdminDto createAdminDto) {
         createAdminDto.setUserRole(UserRole.ADMIN);
         try {
-            return userService.createUser(UserMapper.fromCreateAdminDto(createAdminDto)).toString();
+            return userService.createUser(UserMapper.fromCreateAdminDto(createAdminDto));
         } catch (IronbankAuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString(), e);
         }
@@ -36,10 +37,10 @@ public class UserController {
 
     @PostMapping("/account-holder")
     @ResponseStatus(HttpStatus.CREATED)
-    String createAccountHolder(@Valid @RequestBody CreateAccountHolderDto createAccountHolderDto) {
+    User createAccountHolder(@Valid @RequestBody CreateAccountHolderDto createAccountHolderDto) {
         createAccountHolderDto.setUserRole(UserRole.ACCOUNT_HOLDER);
         try {
-            return userService.createUser(UserMapper.fromCreateAccountHolderDto(createAccountHolderDto)).toString();
+            return userService.createUser(UserMapper.fromCreateAccountHolderDto(createAccountHolderDto));
         } catch (IronbankAuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString(), e);
         }
@@ -47,10 +48,10 @@ public class UserController {
 
     @PostMapping("/third-party")
     @ResponseStatus(HttpStatus.CREATED)
-    String createThirdParty(@Valid @RequestBody CreateThirdPartyDto createThirdPartyDto) {
+    User createThirdParty(@Valid @RequestBody CreateThirdPartyDto createThirdPartyDto) {
         createThirdPartyDto.setUserRole(UserRole.THIRD_PARTY);
         try {
-            return userService.createUser(UserMapper.fromCreateThirdPartyDto(createThirdPartyDto)).toString();
+            return userService.createUser(UserMapper.fromCreateThirdPartyDto(createThirdPartyDto));
         } catch (IronbankAuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.toString(), e);
         }

@@ -1,5 +1,6 @@
 package com.ironhack.ironbankapi.core.model.account;
 
+import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.user.User;
 import lombok.*;
@@ -34,8 +35,18 @@ public class CheckingAccount extends Account{
     @Enumerated(EnumType.STRING)
     private CheckingAccountType checkingAccountType;
 
-    public CheckingAccount(AccountNumber accountNumber, Money balance, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, CheckingAccountType checkingAccountType) {
-        super(accountNumber, balance, primaryOwner, secondaryOwner, status, secretKey);
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "minimum_balance"))
+    private Money minimumBalance;
+
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "monthly_maintenance_fee"))
+    private Money monthlyMaintenanceFee;
+
+    public CheckingAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, CheckingAccountType checkingAccountType, Money minimumBalance, Money monthlyMaintenanceFee) {
+        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey);
         this.checkingAccountType = checkingAccountType;
+        this.minimumBalance = minimumBalance;
+        this.monthlyMaintenanceFee = monthlyMaintenanceFee;
     }
 }

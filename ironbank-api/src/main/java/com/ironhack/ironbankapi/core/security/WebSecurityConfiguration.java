@@ -33,19 +33,17 @@ public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapt
         http.csrf()
                 .disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/user/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/docs/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/account/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/account/**").permitAll()
-                .antMatchers(HttpMethod.PATCH, "/account/**").permitAll()
+                .antMatchers( "/health").permitAll()
+                .antMatchers( "/user/**").permitAll()
+                .antMatchers("/auth/**").permitAll()
+                .antMatchers( "/docs/**").permitAll()
+                .antMatchers("/account/**").permitAll()
+                .antMatchers("/transaction/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
     }
 
 }
