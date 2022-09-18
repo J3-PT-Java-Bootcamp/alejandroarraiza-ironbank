@@ -11,6 +11,7 @@ import com.ironhack.ironbankapi.core.repository.transaction.TransactionRepositor
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 public class TransactionService {
@@ -95,5 +96,9 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return new TransactionResultDto(transactionResult);
+    }
+
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
     }
 }

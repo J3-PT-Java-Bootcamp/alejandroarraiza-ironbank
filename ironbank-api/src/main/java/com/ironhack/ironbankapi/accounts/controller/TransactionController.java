@@ -6,11 +6,13 @@ import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.accounts.service.AccountService;
 import com.ironhack.ironbankapi.accounts.service.TransactionService;
 import com.ironhack.ironbankapi.core.model.account.Account;
+import com.ironhack.ironbankapi.core.model.transaction.Transaction;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/transaction")
@@ -22,6 +24,11 @@ public class TransactionController {
     public TransactionController(AccountService accountService, TransactionService transactionService) {
         this.accountService = accountService;
         this.transactionService = transactionService;
+    }
+
+    @GetMapping("/all")
+    List<Transaction> getAllTransactions() {
+        return transactionService.getAllTransactions();
     }
 
     @PostMapping("/transfer")

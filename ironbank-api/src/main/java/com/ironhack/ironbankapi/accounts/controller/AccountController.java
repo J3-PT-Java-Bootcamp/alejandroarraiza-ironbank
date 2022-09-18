@@ -12,6 +12,8 @@ import com.ironhack.ironbankapi.core.model.common.Money;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/account")
@@ -61,11 +63,16 @@ public class AccountController {
     }
 
     @GetMapping("/all")
-    AccountsResponseDto getAllAccounts() {
-        return new AccountsResponseDto(
-                accountService.getAllCheckingAccounts(),
-                accountService.getAllSavingsAccounts(),
-                accountService.getAllCreditAccounts());
+    List getAllAccounts() {
+//        var accounts =  new AccountsResponseDto(
+//                accountService.getAllCheckingAccounts(),
+//                accountService.getAllSavingsAccounts(),
+//                accountService.getAllCreditAccounts());
+        List list = new ArrayList();
+        list.addAll(accountService.getAllCheckingAccounts());
+        list.addAll(accountService.getAllSavingsAccounts());
+        list.addAll(accountService.getAllCreditAccounts());
+        return list;
     }
 
     @GetMapping("/by-user/{userId}")

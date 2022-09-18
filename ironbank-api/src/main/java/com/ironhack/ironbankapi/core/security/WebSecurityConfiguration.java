@@ -34,6 +34,7 @@ public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapt
                 .disable()
                 .authorizeRequests()
                 .antMatchers( "/health").permitAll()
+                .antMatchers( "/log/**").permitAll()
                 .antMatchers( "/user/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers( "/docs/**").permitAll()
