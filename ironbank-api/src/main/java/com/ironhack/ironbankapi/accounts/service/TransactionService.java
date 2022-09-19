@@ -102,8 +102,7 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount)
-            throws IronbankAccountException {
+    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
@@ -158,7 +157,7 @@ public class TransactionService {
             transaction = Transaction.builder()
                     .transactionType(TransactionType.THIRD_PARTY_TRANSFER)
                     .transactionResult(transactionResult)
-                    .accountNumberDestination(origin.getAccountNumber())
+                    .accountNumberDestination(destination.getAccountNumber())
                     .amount(new Money(amount))
                     .build();
         }
