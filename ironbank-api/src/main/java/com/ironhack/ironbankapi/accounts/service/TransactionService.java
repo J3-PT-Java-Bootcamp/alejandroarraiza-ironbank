@@ -101,4 +101,70 @@ public class TransactionService {
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
+
+    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount)
+            throws IronbankAccountException {
+
+        TransactionResult transactionResult = TransactionResult.REJECTED;
+
+        if (origin.getBalance().compareTo(amount) >= 0) {
+            transactionResult = TransactionResult.EXECUTED;
+        }
+        // TODO VALIDATION
+
+        Transaction transactionDestination = Transaction.builder()
+                .transactionType(TransactionType.LOCAL_TRANSFER)
+                .transactionResult(transactionResult)
+                .accountNumberOrigin(origin.getAccountNumber())
+                .accountNumberDestination(destination.getAccountNumber())
+                .amount(new Money(amount))
+                .build();
+
+        Transaction transactionOrigin = Transaction.builder()
+                .transactionType(TransactionType.LOCAL_TRANSFER)
+                .transactionResult(transactionResult)
+                .accountNumberOrigin(destination.getAccountNumber())
+                .accountNumberDestination(origin.getAccountNumber())
+                .amount(new Money(amount.negate()))
+                .build();
+
+        transactionRepository.save(transactionDestination);
+        transactionRepository.save(transactionOrigin);
+
+        return new TransactionResultDto(transactionResult);
+    }
+
+    public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
+            BigDecimal amount) {
+
+        TransactionResult transactionResult = TransactionResult.REJECTED;
+        Transaction transaction = null;
+        if (origin != null) {
+            if (origin.getBalance().compareTo(amount) >= 0) {
+                transactionResult = TransactionResult.EXECUTED;
+            }
+            // TODO VALIDATION
+
+            transaction = Transaction.builder()
+                    .transactionType(TransactionType.THIRD_PARTY_TRANSFER)
+                    .transactionResult(transactionResult)
+                    .accountNumberDestination(origin.getAccountNumber())
+                    .amount(new Money(amount.negate()))
+                    .build();
+        }
+        if (destination != null) {
+            // TODO VALIDATION
+
+            transaction = Transaction.builder()
+                    .transactionType(TransactionType.THIRD_PARTY_TRANSFER)
+                    .transactionResult(transactionResult)
+                    .accountNumberDestination(origin.getAccountNumber())
+                    .amount(new Money(amount))
+                    .build();
+        }
+
+        transactionRepository.save(transaction);
+
+        return new TransactionResultDto(transactionResult);
+    }
 }
