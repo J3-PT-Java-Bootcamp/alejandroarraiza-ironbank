@@ -1,7 +1,6 @@
 package com.ironhack.ironbankapi.accounts.service;
 
 import com.ironhack.ironbankapi.accounts.dto.TransactionResultDto;
-import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.Account;
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.transaction.Transaction;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 @Service
 public class TransactionService {
@@ -102,6 +103,7 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
+    @Transactional
     public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
@@ -133,6 +135,7 @@ public class TransactionService {
         return new TransactionResultDto(transactionResult);
     }
 
+    @Transactional
     public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
             BigDecimal amount) {
 
