@@ -1,8 +1,9 @@
 package com.ironhack.ironbankapi.auth.service;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
-import com.ironhack.ironbankapi.auth.mapper.UserMapper;
 import com.ironhack.ironbankapi.core.model.user.User;
+import com.ironhack.ironbankapi.core.repository.firebase.FirebaseRepository;
 import com.ironhack.ironbankapi.core.repository.user.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +11,20 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final FirebaseRepository firebaseRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, FirebaseRepository firebaseRepository) {
         this.userRepository = userRepository;
+        this.firebaseRepository = firebaseRepository;
     }
 
     public User createUser(User userToBeCreated) throws IronbankAuthException {
-        userToBeCreated.setId(userRepository.createUserInKeycloak(UserMapper.toKeycloakUserDto(userToBeCreated)));
+        try {
+            userToBeCreated.setId(firebaseRepository.createUser(userToBeCreated.getEmail(), userToBeCreated.getName(),
+                    userToBeCreated.getUserRole()));
+        } catch (FirebaseAuthException e) {
+            System.out.println(e);
+        }
 
         if (userToBeCreated.getId() == null) {
             throw new IronbankAuthException();

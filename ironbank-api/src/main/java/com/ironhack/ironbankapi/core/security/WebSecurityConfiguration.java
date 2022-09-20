@@ -1,50 +1,44 @@
 package com.ironhack.ironbankapi.core.security;
 
-import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
-import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
-import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
-import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
-@KeycloakConfiguration
-public class WebSecurityConfiguration extends KeycloakWebSecurityConfigurerAdapter {
-    @Override
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-        return new NullAuthenticatedSessionStrategy();
-    }
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        KeycloakAuthenticationProvider keycloakAuthenticationProvider =
-                keycloakAuthenticationProvider();
-        keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
-        auth.authenticationProvider(keycloakAuthenticationProvider);
-    }
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        super.configure(http);
-        http.csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers( "/health").permitAll()
-                .antMatchers( "/log/**").permitAll()
-                .antMatchers( "/user/**").permitAll()
+
+        http.csrf().disable().authorizeRequests()
+                .antMatchers("/health").permitAll()
                 .antMatchers("/auth/**").permitAll()
-                .antMatchers( "/docs/**").permitAll()
-                .antMatchers("/account/**").permitAll()
-                .antMatchers("/transaction/**").permitAll()
+                .antMatchers("/docs/**").permitAll()
                 .anyRequest()
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .authenticated();
+
+        http.oauth2ResourceServer()
+                .jwt()
+                .jwtAuthenticationConverter(jwtAuthenticationConverter());
+    }
+
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+
+        converter
+                .setJwtGrantedAuthoritiesConverter(jwt -> Optional.ofNullable(jwt.getClaimAsStringList("custom_claims"))
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList()));
+
+        return converter;
     }
 
 }
