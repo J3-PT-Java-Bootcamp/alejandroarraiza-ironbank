@@ -14,8 +14,6 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 public class GetTokenRequest {
 
-    private String username;
-
     @NotEmpty
     @Email
     private String email;

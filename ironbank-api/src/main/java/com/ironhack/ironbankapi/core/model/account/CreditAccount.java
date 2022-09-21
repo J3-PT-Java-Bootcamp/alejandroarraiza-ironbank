@@ -11,12 +11,12 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = CreditAccount.TABLE_NAME)
-@SQLDelete(sql = "UPDATE "+CreditAccount.TABLE_NAME+" SET deletedAt = SYSDATE() WHERE id=?")
+@SQLDelete(sql = "UPDATE " + CreditAccount.TABLE_NAME + " SET deletedAt = SYSDATE() WHERE id=?")
 @Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreditAccount extends Account{
+public class CreditAccount extends Account {
 
     public static final String TABLE_NAME = "credit_account";
 
@@ -35,8 +35,9 @@ public class CreditAccount extends Account{
     private Money creditLimit;
     private double interestRate;
 
-    public CreditAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, Money creditLimit, double interestRate) {
-        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey);
+    public CreditAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status,
+            String secretKey, Money creditLimit, double interestRate) {
+        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey, AccountType.CREDIT);
         this.creditLimit = creditLimit;
         this.interestRate = interestRate;
     }

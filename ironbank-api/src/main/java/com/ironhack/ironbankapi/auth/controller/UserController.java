@@ -9,6 +9,7 @@ import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
 import com.ironhack.ironbankapi.auth.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/admin")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     User createAdmin(@Valid @RequestBody CreateAdminDto createAdminDto) {
         createAdminDto.setUserRole(UserRole.ADMIN);
@@ -36,6 +38,7 @@ public class UserController {
     }
 
     @PostMapping("/account-holder")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     User createAccountHolder(@Valid @RequestBody CreateAccountHolderDto createAccountHolderDto) {
         createAccountHolderDto.setUserRole(UserRole.ACCOUNT_HOLDER);
@@ -47,6 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/third-party")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     User createThirdParty(@Valid @RequestBody CreateThirdPartyDto createThirdPartyDto) {
         createThirdPartyDto.setUserRole(UserRole.THIRD_PARTY);

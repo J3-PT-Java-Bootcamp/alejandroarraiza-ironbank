@@ -7,4 +7,6 @@ public interface FirebaseRepository {
 
   String createUser(String email, String password, UserRole role) throws FirebaseAuthException;
 
+  String getToken(String email, String password);
+
 }

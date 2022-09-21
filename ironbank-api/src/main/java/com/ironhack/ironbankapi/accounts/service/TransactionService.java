@@ -6,6 +6,7 @@ import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.transaction.Transaction;
 import com.ironhack.ironbankapi.core.model.transaction.TransactionResult;
 import com.ironhack.ironbankapi.core.model.transaction.TransactionType;
+import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.repository.transaction.TransactionRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,14 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public TransactionResultDto logAccountCreated(Account account, BigDecimal amount) {
+    public TransactionResultDto logAccountCreated(Account account, BigDecimal amount, User user) {
 
         Transaction transaction = Transaction.builder()
                 .transactionType(TransactionType.OPEN_ACCOUNT)
                 .transactionResult(TransactionResult.EXECUTED)
                 .accountNumberDestination(account.getAccountNumber())
                 .amount(new Money(amount))
+                .user(user)
                 .build();
 
         transactionRepository.save(transaction);
@@ -38,7 +40,7 @@ public class TransactionService {
 
     }
 
-    public TransactionResultDto updateBalance(Account account, BigDecimal amount) {
+    public TransactionResultDto updateBalance(Account account, BigDecimal amount, User user) {
 
         BigDecimal balanceDiff = amount.subtract(account.getBalance());
 
@@ -47,6 +49,7 @@ public class TransactionService {
                 .transactionResult(TransactionResult.EXECUTED)
                 .accountNumberDestination(account.getAccountNumber())
                 .amount(new Money(balanceDiff))
+                .user(user)
                 .build();
 
         transactionRepository.save(transaction);
@@ -55,7 +58,7 @@ public class TransactionService {
 
     }
 
-    public TransactionResultDto withdraw(Account account, BigDecimal amount) {
+    public TransactionResultDto withdraw(Account account, BigDecimal amount, User user) {
 
         // TODO validation
 
@@ -70,6 +73,7 @@ public class TransactionService {
                 .transactionResult(transactionResult)
                 .accountNumberDestination(account.getAccountNumber())
                 .amount(new Money(amount.negate()))
+                .user(user)
                 .build();
 
         transactionRepository.save(transaction);
@@ -77,7 +81,7 @@ public class TransactionService {
         return new TransactionResultDto(transactionResult);
     }
 
-    public TransactionResultDto deposit(Account account, BigDecimal amount) {
+    public TransactionResultDto deposit(Account account, BigDecimal amount, User user) {
 
         // TODO validation
 
@@ -92,6 +96,7 @@ public class TransactionService {
                 .transactionResult(transactionResult)
                 .accountNumberDestination(account.getAccountNumber())
                 .amount(new Money(amount))
+                .user(user)
                 .build();
 
         transactionRepository.save(transaction);
@@ -104,11 +109,11 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount) {
+    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount, User user) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (origin.getBalance().compareTo(amount) >= 0) {
+        if (origin.getBalance().compareTo(amount) >= 0 && origin.checkUserIsOwner(user)) {
             transactionResult = TransactionResult.EXECUTED;
         }
         // TODO VALIDATION
@@ -119,6 +124,7 @@ public class TransactionService {
                 .accountNumberOrigin(origin.getAccountNumber())
                 .accountNumberDestination(destination.getAccountNumber())
                 .amount(new Money(amount))
+                .user(user)
                 .build();
 
         Transaction transactionOrigin = Transaction.builder()
@@ -127,6 +133,7 @@ public class TransactionService {
                 .accountNumberOrigin(destination.getAccountNumber())
                 .accountNumberDestination(origin.getAccountNumber())
                 .amount(new Money(amount.negate()))
+                .user(user)
                 .build();
 
         transactionRepository.save(transactionDestination);
@@ -137,7 +144,7 @@ public class TransactionService {
 
     @Transactional
     public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
-            BigDecimal amount) {
+            BigDecimal amount, User user) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
         Transaction transaction = null;
@@ -152,6 +159,7 @@ public class TransactionService {
                     .transactionResult(transactionResult)
                     .accountNumberDestination(origin.getAccountNumber())
                     .amount(new Money(amount.negate()))
+                    .user(user)
                     .build();
         }
         if (destination != null) {
@@ -162,6 +170,7 @@ public class TransactionService {
                     .transactionResult(transactionResult)
                     .accountNumberDestination(destination.getAccountNumber())
                     .amount(new Money(amount))
+                    .user(user)
                     .build();
         }
 

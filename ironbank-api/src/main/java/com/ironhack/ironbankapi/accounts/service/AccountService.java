@@ -36,8 +36,9 @@ public class AccountService {
 
     final AccountNumberRepository accountNumberRepository;
 
-
-    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository, CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository, AccountNumberRepository accountNumberRepository, TransactionService transactionService) {
+    public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository,
+            CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository,
+            AccountNumberRepository accountNumberRepository, TransactionService transactionService) {
         this.userRepository = userRepository;
         this.checkingAccountRepository = checkingAccountRepository;
         this.creditAccountRepository = creditAccountRepository;
@@ -45,9 +46,11 @@ public class AccountService {
         this.accountNumberRepository = accountNumberRepository;
     }
 
-    public CheckingAccount createCheckingAccount(CreateCheckingAccountDto createCheckingAccountDto) throws IronbankAccountException {
+    public CheckingAccount createCheckingAccount(CreateCheckingAccountDto createCheckingAccountDto)
+            throws IronbankAccountException {
 
-        if (createCheckingAccountDto.getBalance().getAmount().compareTo(CheckingAccount.MINIMUM_BALANCE.getAmount()) < 0) {
+        if (createCheckingAccountDto.getBalance().getAmount()
+                .compareTo(CheckingAccount.MINIMUM_BALANCE.getAmount()) < 0) {
             throw new IronbankAccountException("Balance too low");
         }
 
@@ -70,10 +73,13 @@ public class AccountService {
                 secondaryOwner.orElse(null),
                 AccountStatus.ACTIVE,
                 createCheckingAccountDto.getSecretKey(),
-                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? CheckingAccountType.STUDENT : CheckingAccountType.DEFAULT,
-                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0)) : CheckingAccount.MINIMUM_BALANCE,
-                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0)) : CheckingAccount.MONTHLY_MAINTENANCE_FEE
-        );
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? CheckingAccountType.STUDENT
+                        : CheckingAccountType.DEFAULT,
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0))
+                        : CheckingAccount.MINIMUM_BALANCE,
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? new Money(new BigDecimal(0))
+                        : CheckingAccount.MONTHLY_MAINTENANCE_FEE,
+                primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? AccountType.STUDENT_CHECKING : AccountType.CHECKING);
 
         account = checkingAccountRepository.save(account);
 
@@ -83,19 +89,24 @@ public class AccountService {
 
     public CreditAccount createCreditAccount(CreateCreditAccount createCreditAccount) throws IronbankAccountException {
 
-        if (createCreditAccount.getCreditLimit() != null && createCreditAccount.getCreditLimit().getAmount().compareTo(CreditAccount.MAX_CREDIT_LIMIT.getAmount()) > 0) {
-            throw new IronbankAccountException("Unexpected credit limit. Must be less than %s".formatted(CreditAccount.MAX_CREDIT_LIMIT));
+        if (createCreditAccount.getCreditLimit() != null && createCreditAccount.getCreditLimit().getAmount()
+                .compareTo(CreditAccount.MAX_CREDIT_LIMIT.getAmount()) > 0) {
+            throw new IronbankAccountException(
+                    "Unexpected credit limit. Must be less than %s".formatted(CreditAccount.MAX_CREDIT_LIMIT));
         } else if (createCreditAccount.getCreditLimit() == null) {
             createCreditAccount.setCreditLimit(CreditAccount.DEFAULT_CREDIT_LIMIT);
         }
 
-        if (createCreditAccount.getInterestRate() != null && createCreditAccount.getInterestRate() < CreditAccount.MIN_INTEREST_RATE) {
-            throw new IronbankAccountException("Unexpected interest rate. Must be greater than %s".formatted(CreditAccount.MIN_INTEREST_RATE));
+        if (createCreditAccount.getInterestRate() != null
+                && createCreditAccount.getInterestRate() < CreditAccount.MIN_INTEREST_RATE) {
+            throw new IronbankAccountException(
+                    "Unexpected interest rate. Must be greater than %s".formatted(CreditAccount.MIN_INTEREST_RATE));
         } else if (createCreditAccount.getInterestRate() == null) {
             createCreditAccount.setInterestRate(CreditAccount.DEFAULT_INTEREST_RATE);
         }
 
-        if (createCreditAccount.getBalance().getAmount().compareTo(createCreditAccount.getCreditLimit().getAmount()) > 0) {
+        if (createCreditAccount.getBalance().getAmount()
+                .compareTo(createCreditAccount.getCreditLimit().getAmount()) > 0) {
             throw new IronbankAccountException("Balance over the credit limit");
         }
 
@@ -117,8 +128,7 @@ public class AccountService {
                 AccountStatus.ACTIVE,
                 createCreditAccount.getSecretKey(),
                 createCreditAccount.getCreditLimit(),
-                createCreditAccount.getInterestRate()
-        );
+                createCreditAccount.getInterestRate());
 
         account = creditAccountRepository.save(account);
 
@@ -126,21 +136,27 @@ public class AccountService {
 
     }
 
-    public SavingsAccount createSavingsAccount(CreateSavingsAccountDto createSavingsAccountDto) throws IronbankAccountException {
+    public SavingsAccount createSavingsAccount(CreateSavingsAccountDto createSavingsAccountDto)
+            throws IronbankAccountException {
 
-        if (createSavingsAccountDto.getInterestRate() != null && createSavingsAccountDto.getInterestRate() > SavingsAccount.MAX_INTEREST_RATE) {
-            throw new IronbankAccountException("Unexpected interest rate. Must be greater than %s".formatted(SavingsAccount.MAX_INTEREST_RATE));
+        if (createSavingsAccountDto.getInterestRate() != null
+                && createSavingsAccountDto.getInterestRate() > SavingsAccount.MAX_INTEREST_RATE) {
+            throw new IronbankAccountException(
+                    "Unexpected interest rate. Must be greater than %s".formatted(SavingsAccount.MAX_INTEREST_RATE));
         } else if (createSavingsAccountDto.getInterestRate() == null) {
             createSavingsAccountDto.setInterestRate(SavingsAccount.DEFAULT_INTEREST_RATE);
         }
 
-        if (createSavingsAccountDto.getMinimumBalance() != null && createSavingsAccountDto.getMinimumBalance().getAmount().compareTo(SavingsAccount.MIN_MINIMUM_BALANCE.getAmount()) < 0) {
-            throw new IronbankAccountException("Unexpected minimum balance. Must be greater than %s".formatted(SavingsAccount.MIN_MINIMUM_BALANCE));
+        if (createSavingsAccountDto.getMinimumBalance() != null && createSavingsAccountDto.getMinimumBalance()
+                .getAmount().compareTo(SavingsAccount.MIN_MINIMUM_BALANCE.getAmount()) < 0) {
+            throw new IronbankAccountException("Unexpected minimum balance. Must be greater than %s"
+                    .formatted(SavingsAccount.MIN_MINIMUM_BALANCE));
         } else if (createSavingsAccountDto.getMinimumBalance() == null) {
             createSavingsAccountDto.setMinimumBalance(SavingsAccount.MIN_MINIMUM_BALANCE);
         }
 
-        if (createSavingsAccountDto.getBalance().getAmount().compareTo(createSavingsAccountDto.getMinimumBalance().getAmount()) < 0) {
+        if (createSavingsAccountDto.getBalance().getAmount()
+                .compareTo(createSavingsAccountDto.getMinimumBalance().getAmount()) < 0) {
             throw new IronbankAccountException("Balance too low");
         }
 
@@ -162,8 +178,7 @@ public class AccountService {
                 AccountStatus.ACTIVE,
                 createSavingsAccountDto.getSecretKey(),
                 createSavingsAccountDto.getMinimumBalance(),
-                createSavingsAccountDto.getInterestRate()
-        );
+                createSavingsAccountDto.getInterestRate());
 
         account = savingsAccountRepository.save(account);
 
@@ -234,55 +249,5 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         return account;
-    }
-
-//    public void updateAccount(String accountNumber, UpdateAccountDto updateAccountDto) throws IronbankAccountException {
-//        Account account = getAccountByAccountNumber(accountNumber);
-//        Transaction transaction = TransactionMapper.mapFromAccountUpdated(account, updateAccountDto.getBalance());
-//
-//        if (account instanceof CheckingAccount) {
-//            System.out.println(updateAccountDto.getBalance());
-//            System.out.println(((CheckingAccount) account).getMinimumBalance());
-//            if (updateAccountDto.getBalance().getAmount().compareTo(((CheckingAccount) account).getMinimumBalance().getAmount()) < 0) {
-//                transaction.setTransactionResult(TransactionResult.REJECTED);
-//            } else {
-//                account.setBalance(updateAccountDto.getBalance());
-//                checkingAccountRepository.save((CheckingAccount) account);
-//            }
-//        } else if (account instanceof SavingsAccount) {
-//            if (updateAccountDto.getBalance().getAmount().compareTo(((SavingsAccount) account).getMinimumBalance().getAmount()) < 0) {
-//                transaction.setTransactionResult(TransactionResult.REJECTED);
-//            } else {
-//                account.setBalance(updateAccountDto.getBalance());
-//                savingsAccountRepository.save((SavingsAccount) account);
-//            }
-//        } else if (account instanceof CreditAccount) {
-//            account.setBalance(updateAccountDto.getBalance());
-//            creditAccountRepository.save((CreditAccount) account);
-//        } else {
-//            transaction.setTransactionResult(TransactionResult.REJECTED);
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-//        }
-//        transactionService.saveTransaction(transaction);
-//        if(transaction.getTransactionResult() == TransactionResult.REJECTED) {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-//        }
-//    }
-
-    public Money getAccountBalance(String accountNumber) {
-        AccountNumber accountNumberFound = accountNumberRepository.findById(accountNumber).orElseThrow();
-        Account account;
-        account = checkingAccountRepository.findByAccountNumber(accountNumberFound);
-        if (account == null) {
-            account = savingsAccountRepository.findByAccountNumber(accountNumberFound);
-        }
-        if (account == null) {
-            account = creditAccountRepository.findByAccountNumber(accountNumberFound);
-        }
-        if (account == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return new Money(account.getBalance());
-
     }
 }

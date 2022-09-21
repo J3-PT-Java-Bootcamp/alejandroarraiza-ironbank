@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = CheckingAccount.TABLE_NAME)
-@SQLDelete(sql = "UPDATE "+CheckingAccount.TABLE_NAME+" SET deletedAt = SYSDATE() WHERE id=?")
+@SQLDelete(sql = "UPDATE " + CheckingAccount.TABLE_NAME + " SET deletedAt = SYSDATE() WHERE id=?")
 @Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 @Getter
 @Setter
-public class CheckingAccount extends Account{
+public class CheckingAccount extends Account {
 
     public static final String TABLE_NAME = "checking_account";
 
@@ -43,8 +43,10 @@ public class CheckingAccount extends Account{
     @AttributeOverride(name = "amount", column = @Column(name = "monthly_maintenance_fee"))
     private Money monthlyMaintenanceFee;
 
-    public CheckingAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey, CheckingAccountType checkingAccountType, Money minimumBalance, Money monthlyMaintenanceFee) {
-        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey);
+    public CheckingAccount(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status,
+            String secretKey, CheckingAccountType checkingAccountType, Money minimumBalance,
+            Money monthlyMaintenanceFee, AccountType accountType) {
+        super(accountNumber, primaryOwner, secondaryOwner, status, secretKey, accountType);
         this.checkingAccountType = checkingAccountType;
         this.minimumBalance = minimumBalance;
         this.monthlyMaintenanceFee = monthlyMaintenanceFee;

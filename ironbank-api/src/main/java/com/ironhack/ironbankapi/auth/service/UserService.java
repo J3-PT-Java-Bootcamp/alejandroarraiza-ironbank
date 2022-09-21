@@ -18,6 +18,10 @@ public class UserService {
         this.firebaseRepository = firebaseRepository;
     }
 
+    public User getUserById(String id) {
+        return userRepository.findById(id).orElseThrow();
+    }
+
     public User createUser(User userToBeCreated) throws IronbankAuthException {
         try {
             userToBeCreated.setId(firebaseRepository.createUser(userToBeCreated.getEmail(), userToBeCreated.getName(),

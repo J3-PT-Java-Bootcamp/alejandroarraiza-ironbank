@@ -2,11 +2,14 @@ package com.ironhack.ironbankapi.core.repository.firebase;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -15,14 +18,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
+import com.ironhack.ironbankapi.core.dto.FirebaseLoginRequest;
+import com.ironhack.ironbankapi.core.dto.FirebaseLoginResponse;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
-
-import antlr.collections.List;
 
 @Repository
 public class FirebaseRepositoryImpl implements FirebaseRepository {
 
-  public FirebaseRepositoryImpl() throws IOException {
+  private final FirebaseProperties firebaseProperties;
+  private final WebClient webClient;
+
+  public FirebaseRepositoryImpl(WebClient.Builder webClientBuilder, FirebaseProperties firebaseProperties)
+      throws IOException {
+    this.firebaseProperties = firebaseProperties;
+    this.webClient = webClientBuilder.build();
     init();
   }
 
@@ -54,6 +63,20 @@ public class FirebaseRepositoryImpl implements FirebaseRepository {
     FirebaseAuth.getInstance().setCustomUserClaims(userRecord.getUid(), claims);
 
     return userRecord.getUid();
+  }
+
+  @Override
+  public String getToken(String email, String password) {
+    System.out.println(firebaseProperties);
+    var response = webClient
+        .post()
+        .uri(URI.create(firebaseProperties.getLoginUrl() + "?key=" + firebaseProperties.getApiKey()))
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(new FirebaseLoginRequest(email, password)))
+        .retrieve()
+        .bodyToMono(FirebaseLoginResponse.class)
+        .block();
+    return response.getIdToken();
   }
 
 }

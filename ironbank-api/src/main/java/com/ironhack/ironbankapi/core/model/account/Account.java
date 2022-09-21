@@ -19,7 +19,6 @@ public abstract class Account {
 
     public static final Money PENALTY_FEE = new Money(new BigDecimal("40"));
 
-
     @OneToOne
     @JoinColumn(name = "account_number_iban")
     private AccountNumber accountNumber;
@@ -48,11 +47,21 @@ public abstract class Account {
 
     private String secretKey;
 
-    public Account(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status, String secretKey) {
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
+
+    public Account(AccountNumber accountNumber, User primaryOwner, User secondaryOwner, AccountStatus status,
+            String secretKey, AccountType accountType) {
         this.accountNumber = accountNumber;
         this.primaryOwner = primaryOwner;
         this.secondaryOwner = secondaryOwner;
         this.status = status;
         this.secretKey = secretKey;
+        this.accountType = accountType;
+    }
+
+    public boolean checkUserIsOwner(User user) {
+        return primaryOwner.getId().equals(user.getId())
+                || (secondaryOwner != null && secondaryOwner.getId().equals(user.getId()));
     }
 }
