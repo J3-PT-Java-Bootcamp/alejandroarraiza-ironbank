@@ -1,11 +1,13 @@
 package com.ironhack.ironbankapi.accounts.service;
 
+import com.google.api.Http;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.*;
 import com.ironhack.ironbankapi.core.model.common.Money;
+import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
 import com.ironhack.ironbankapi.core.repository.account.AccountNumberRepository;
 import com.ironhack.ironbankapi.core.repository.account.CheckingAccountRepository;
@@ -259,6 +261,23 @@ public class AccountService {
         }
         if (account == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return account;
+    }
+
+    public Account closeAccount(String accountId, User user) throws IronbankAccountException {
+        var account = getAccountByAccountNumber(accountId);
+        if(account.getBalance().equals(new BigDecimal(0))){
+            account.setStatus(AccountStatus.CLOSED);
+        }
+        if(account instanceof CheckingAccount) {
+            checkingAccountRepository.save((CheckingAccount) account);
+        }else if(account instanceof SavingsAccount) {
+            savingsAccountRepository.save((SavingsAccount) account);
+        }else if(account instanceof CreditAccount) {
+            creditAccountRepository.save((CreditAccount) account);
+        }else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return account;
     }

@@ -23,9 +23,9 @@ public class TransactionThirdPartyTransferRequestDto extends TransactionRequestD
 
     private String destinationAccountNumber;
 
-    public TransactionThirdPartyTransferRequestDto(BigDecimal amount, String externalAccountHash,
+    public TransactionThirdPartyTransferRequestDto(BigDecimal amount, String secretKey, String externalAccountHash,
             String originAccountNumber, String destinationAccountNumber) {
-        super(amount);
+        super(amount, secretKey);
         this.externalAccountHash = externalAccountHash;
         this.originAccountNumber = originAccountNumber;
         this.destinationAccountNumber = destinationAccountNumber;

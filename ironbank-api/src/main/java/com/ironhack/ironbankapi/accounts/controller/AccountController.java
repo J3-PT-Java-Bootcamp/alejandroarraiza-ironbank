@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import java.security.Principal;
@@ -41,6 +42,7 @@ public class AccountController {
 
     @PostMapping("/checking")
     @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
     CheckingAccount createCheckingAccount(Principal principal,
             @Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto)
             throws IronbankAccountException {
@@ -57,6 +59,7 @@ public class AccountController {
 
     @PostMapping("/savings")
     @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
     SavingsAccount createSavingsAccount(Principal principal,
             @Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto)
             throws IronbankAccountException {
@@ -68,6 +71,7 @@ public class AccountController {
 
     @PostMapping("/credit")
     @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
     CreditAccount createCreditAccount(Principal principal, @Valid @RequestBody CreateCreditAccount createCreditAccount)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
@@ -75,6 +79,17 @@ public class AccountController {
         transactionService.logAccountCreated(account, createCreditAccount.getBalance().getAmount(), user);
         return account;
     }
+
+    @DeleteMapping("/{accountId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
+    void deleteAccount(Principal principal, @PathVariable String accountId) throws IronbankAccountException {
+        var user = userService.getUserById(principal.getName());
+        var account = accountService.closeAccount(accountId, user);
+        transactionService.logAccountClosed(account, user);
+    }
+
 
     @GetMapping("/{accountNumber}")
     Account getAccount(Principal principal, @PathVariable String accountNumber) throws IronbankAccountException {

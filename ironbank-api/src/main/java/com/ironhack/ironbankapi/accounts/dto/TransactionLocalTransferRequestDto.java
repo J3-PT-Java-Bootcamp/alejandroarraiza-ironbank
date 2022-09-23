@@ -15,9 +15,9 @@ public class TransactionLocalTransferRequestDto extends TransactionRequestDto {
 
     private String destinationAccountNumber;
 
-    public TransactionLocalTransferRequestDto(BigDecimal amount, String originAccountNumber,
+    public TransactionLocalTransferRequestDto(BigDecimal amount, String secretKey, String originAccountNumber,
             String destinationAccountNumber) {
-        super(amount);
+        super(amount, secretKey);
         this.originAccountNumber = originAccountNumber;
         this.destinationAccountNumber = destinationAccountNumber;
     }

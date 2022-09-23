@@ -15,4 +15,6 @@ public class TransactionRequestDto {
 
     BigDecimal amount;
 
+    String secretKey;
+
 }

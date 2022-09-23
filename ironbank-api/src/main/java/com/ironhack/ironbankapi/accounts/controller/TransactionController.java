@@ -56,7 +56,7 @@ public class TransactionController {
         Account destination = accountService
                 .getAccountByAccountNumber(transactionTransferRequestDto.getDestinationAccountNumber());
 
-        return transactionService.localTransfer(origin, destination, transactionTransferRequestDto.getAmount(), user);
+        return transactionService.localTransfer(origin, destination, transactionTransferRequestDto.getAmount(), user, transactionTransferRequestDto.getSecretKey());
     }
 
     @PostMapping("/third-party-transfer")
@@ -87,7 +87,9 @@ public class TransactionController {
         } else {
             return transactionService.thirdPartyTransfer(
                     transactionThirdPartyTransferRequestDto.getExternalAccountHash(),
-                    origin, destination, transactionThirdPartyTransferRequestDto.getAmount(), user);
+                    origin, destination, transactionThirdPartyTransferRequestDto.getAmount(),
+                    user,
+                    transactionThirdPartyTransferRequestDto.getSecretKey());
         }
     }
 
@@ -102,7 +104,7 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return transactionService.withdraw(account, transactionRequestDto.getAmount(), user);
+        return transactionService.withdraw(account, transactionRequestDto.getAmount(), user, transactionRequestDto.getSecretKey());
 
     }
 
@@ -117,7 +119,7 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return transactionService.deposit(account, transactionRequestDto.getAmount(), user);
+        return transactionService.deposit(account, transactionRequestDto.getAmount(), user, transactionRequestDto.getSecretKey());
     }
 
     @PostMapping("/{accountNumber}/update-balance")

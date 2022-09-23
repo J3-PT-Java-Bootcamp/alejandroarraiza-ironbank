@@ -40,6 +40,21 @@ public class TransactionService {
 
     }
 
+    public TransactionResultDto logAccountClosed(Account account, User user) {
+
+        Transaction transaction = Transaction.builder()
+                .transactionType(TransactionType.CLOSE_ACCOUNT)
+                .transactionResult(TransactionResult.EXECUTED)
+                .accountNumberDestination(account.getAccountNumber())
+                .user(user)
+                .build();
+
+        transactionRepository.save(transaction);
+
+        return new TransactionResultDto(transaction.getTransactionResult());
+
+    }
+
     public TransactionResultDto updateBalance(Account account, BigDecimal amount, User user) {
 
         BigDecimal balanceDiff = amount.subtract(account.getBalance());
@@ -58,11 +73,13 @@ public class TransactionService {
 
     }
 
-    public TransactionResultDto withdraw(Account account, BigDecimal amount, User user) {
+    public TransactionResultDto withdraw(Account account, BigDecimal amount, User user, String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() != AccountStatus.FROZEN) {
+        if (amount.compareTo(account.getBalance()) <= 0
+                && account.getStatus() == AccountStatus.ACTIVE
+        && account.getSecretKey().equals(secretKey)) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -79,11 +96,12 @@ public class TransactionService {
         return new TransactionResultDto(transactionResult);
     }
 
-    public TransactionResultDto deposit(Account account, BigDecimal amount, User user) {
+    public TransactionResultDto deposit(Account account, BigDecimal amount, User user, String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() != AccountStatus.FROZEN) {
+        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() == AccountStatus.ACTIVE
+                && account.getSecretKey().equals(secretKey)) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -105,11 +123,15 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount, User user) {
+    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount, User user, String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (origin.getBalance().compareTo(amount) >= 0 && origin.checkUserIsOwner(user) && origin.getStatus() != AccountStatus.FROZEN && destination.getStatus() != AccountStatus.FROZEN) {
+        if (origin.getBalance().compareTo(amount) >= 0
+                && origin.checkUserIsOwner(user)
+                && origin.getStatus() == AccountStatus.ACTIVE
+                && destination.getStatus() != AccountStatus.FROZEN
+                && origin.getSecretKey().equals(secretKey)) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -139,12 +161,13 @@ public class TransactionService {
 
     @Transactional
     public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
-                                                   BigDecimal amount, User user) {
+                                                   BigDecimal amount, User user, String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
         Transaction transaction = null;
         if (origin != null) {
-            if (origin.getBalance().compareTo(amount) >= 0 && origin.getStatus() != AccountStatus.FROZEN) {
+            if (origin.getBalance().compareTo(amount) >= 0 && origin.getStatus() == AccountStatus.ACTIVE
+            && origin.getSecretKey().equals(secretKey)) {
                 transactionResult = TransactionResult.EXECUTED;
             }
 
@@ -159,7 +182,7 @@ public class TransactionService {
         }
         if (destination != null) {
 
-            if (destination.getStatus() != AccountStatus.FROZEN) {
+            if (destination.getStatus() == AccountStatus.ACTIVE) {
                 transactionResult = TransactionResult.EXECUTED;
             }
 
