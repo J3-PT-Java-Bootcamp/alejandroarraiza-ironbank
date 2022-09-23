@@ -1,16 +1,14 @@
 package com.ironhack.ironbankapi.accounts.dto;
 
 import com.ironhack.ironbankapi.core.model.common.Money;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class CreateCreditAccount {
+@Builder
+public class CreateCreditAccountDto {
 
     private Money balance;
 

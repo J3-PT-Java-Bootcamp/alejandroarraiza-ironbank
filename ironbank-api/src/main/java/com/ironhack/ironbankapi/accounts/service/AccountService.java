@@ -1,7 +1,7 @@
 package com.ironhack.ironbankapi.accounts.service;
 
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
-import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
+import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.core.model.account.*;
@@ -106,30 +106,30 @@ public class AccountService {
     }
 
 
-    public CreditAccount createCreditAccount(User user, CreateCreditAccount createCreditAccount) throws IronbankAccountException {
+    public CreditAccount createCreditAccount(User user, CreateCreditAccountDto createCreditAccountDto) throws IronbankAccountException {
 
-        if (createCreditAccount.getCreditLimit() != null && createCreditAccount.getCreditLimit().getAmount()
+        if (createCreditAccountDto.getCreditLimit() != null && createCreditAccountDto.getCreditLimit().getAmount()
                 .compareTo(CreditAccount.MAX_CREDIT_LIMIT.getAmount()) > 0) {
             throw new IronbankAccountException(
                     "Unexpected credit limit. Must be less than %s".formatted(CreditAccount.MAX_CREDIT_LIMIT));
-        } else if (createCreditAccount.getCreditLimit() == null) {
-            createCreditAccount.setCreditLimit(CreditAccount.DEFAULT_CREDIT_LIMIT);
+        } else if (createCreditAccountDto.getCreditLimit() == null) {
+            createCreditAccountDto.setCreditLimit(CreditAccount.DEFAULT_CREDIT_LIMIT);
         }
 
-        if (createCreditAccount.getInterestRate() != null
-                && createCreditAccount.getInterestRate() < CreditAccount.MIN_INTEREST_RATE) {
+        if (createCreditAccountDto.getInterestRate() != null
+                && createCreditAccountDto.getInterestRate() < CreditAccount.MIN_INTEREST_RATE) {
             throw new IronbankAccountException(
                     "Unexpected interest rate. Must be greater than %s".formatted(CreditAccount.MIN_INTEREST_RATE));
-        } else if (createCreditAccount.getInterestRate() == null) {
-            createCreditAccount.setInterestRate(CreditAccount.DEFAULT_INTEREST_RATE);
+        } else if (createCreditAccountDto.getInterestRate() == null) {
+            createCreditAccountDto.setInterestRate(CreditAccount.DEFAULT_INTEREST_RATE);
         }
 
-        if (createCreditAccount.getBalance().getAmount()
-                .compareTo(createCreditAccount.getCreditLimit().getAmount()) > 0) {
+        if (createCreditAccountDto.getBalance().getAmount()
+                .compareTo(createCreditAccountDto.getCreditLimit().getAmount()) > 0) {
             throw new IronbankAccountException("Balance over the credit limit");
         }
 
-        var primaryOwner = userRepository.findById(createCreditAccount.getPrimaryOwnerId()).orElseThrow();
+        var primaryOwner = userRepository.findById(createCreditAccountDto.getPrimaryOwnerId()).orElseThrow();
 
         if (primaryOwner.getUserRole() != UserRole.ACCOUNT_HOLDER) {
             throw new IronbankAccountException("Only Account Holders can open accounts");
@@ -137,8 +137,8 @@ public class AccountService {
 
         User secondaryOwner = null;
 
-        if(createCreditAccount.getSecondaryOwnerId() != null) {
-            var secondaryOwnerOpt = userRepository.findById(createCreditAccount.getSecondaryOwnerId());
+        if(createCreditAccountDto.getSecondaryOwnerId() != null) {
+            var secondaryOwnerOpt = userRepository.findById(createCreditAccountDto.getSecondaryOwnerId());
 
             if (secondaryOwnerOpt.isPresent() && secondaryOwnerOpt.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
                 throw new IronbankAccountException("Only Account Holders can open accounts");
@@ -155,13 +155,13 @@ public class AccountService {
                 primaryOwner,
                 secondaryOwner,
                 AccountStatus.ACTIVE,
-                createCreditAccount.getSecretKey(),
-                createCreditAccount.getCreditLimit(),
-                createCreditAccount.getInterestRate());
+                createCreditAccountDto.getSecretKey(),
+                createCreditAccountDto.getCreditLimit(),
+                createCreditAccountDto.getInterestRate());
 
         account = creditAccountRepository.save(account);
 
-        transactionService.logAccountCreated(account, createCreditAccount.getBalance().getAmount(), user);
+        transactionService.logAccountCreated(account, createCreditAccountDto.getBalance().getAmount(), user);
 
         return (CreditAccount) getAccountByAccountNumber(account.getAccountNumber().getIban());
 
@@ -184,7 +184,7 @@ public class AccountService {
             throw new IronbankAccountException("Unexpected minimum balance. Must be greater than %s"
                     .formatted(SavingsAccount.MIN_MINIMUM_BALANCE));
         } else if (createSavingsAccountDto.getMinimumBalance() == null) {
-            createSavingsAccountDto.setMinimumBalance(SavingsAccount.MIN_MINIMUM_BALANCE);
+            createSavingsAccountDto.setMinimumBalance(SavingsAccount.DEFAULT_MINIMUM_BALANCE);
         }
 
         if (createSavingsAccountDto.getBalance().getAmount()

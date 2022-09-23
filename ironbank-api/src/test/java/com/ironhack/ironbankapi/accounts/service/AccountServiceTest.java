@@ -2,11 +2,11 @@ package com.ironhack.ironbankapi.accounts.service;
 
 import com.google.firebase.auth.FirebaseAuthException;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
+import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccountDto;
+import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
 import com.ironhack.ironbankapi.auth.exceptions.IronbankAuthException;
 import com.ironhack.ironbankapi.auth.service.UserService;
-import com.ironhack.ironbankapi.core.model.account.AccountStatus;
-import com.ironhack.ironbankapi.core.model.account.CheckingAccount;
-import com.ironhack.ironbankapi.core.model.account.CheckingAccountType;
+import com.ironhack.ironbankapi.core.model.account.*;
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.model.user.UserRole;
@@ -17,15 +17,12 @@ import com.ironhack.ironbankapi.core.repository.firebase.FirebaseRepository;
 import com.ironhack.ironbankapi.core.repository.transaction.TransactionRepository;
 import com.ironhack.ironbankapi.core.repository.user.UserRepository;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -36,11 +33,11 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class AccountServiceTest {
 
-    @Autowired
-    UserService userService;
-
     @MockBean
     FirebaseRepository firebaseRepository;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     AccountService accountService;
@@ -123,42 +120,78 @@ class AccountServiceTest {
     }
 
     @Test
+    void createStudentCheckingAccount_ok() {
+        Money balance = new Money(new BigDecimal("500"));
+        String secretKey = "123456";
+        CreateCheckingAccountDto createCheckingAccountDto = CreateCheckingAccountDto
+                .builder()
+                .balance(balance)
+                .primaryOwnerId(accountHolderStudent.getId())
+                .secretKey(secretKey)
+                .build();
+        Exception exc = null;
+        try{
+            var accountCreated = accountService.createCheckingAccount(admin, createCheckingAccountDto);
+            assertEquals(balance.getAmount(), accountCreated.getBalance());
+            assertEquals(CheckingAccountType.STUDENT, accountCreated.getCheckingAccountType());
+            assertEquals(accountHolderStudent, accountCreated.getPrimaryOwner());
+            assertEquals(AccountStatus.ACTIVE, accountCreated.getStatus());
+            assertEquals(secretKey, accountCreated.getSecretKey());
+            assertEquals(new Money(new BigDecimal(0)), accountCreated.getMinimumBalance());
+            assertEquals(new Money(new BigDecimal(0)), accountCreated.getMonthlyMaintenanceFee());
+        }catch (Exception e){
+            exc = e;
+        }
+        assertNull(exc);
+    }
+
+    @Test
     void createCreditAccount_ok() {
+        Money balance = new Money(new BigDecimal("50"));
+        String secretKey = "123456";
+        CreateCreditAccountDto createCreditAccountDto = CreateCreditAccountDto
+                .builder()
+                .balance(balance)
+                .primaryOwnerId(accountHolderStudent.getId())
+                .secretKey(secretKey)
+                .build();
+        Exception exc = null;
+        try{
+            var accountCreated = accountService.createCreditAccount(admin, createCreditAccountDto);
+            assertEquals(balance.getAmount(), accountCreated.getBalance());
+            assertEquals(accountHolderStudent, accountCreated.getPrimaryOwner());
+            assertEquals(AccountStatus.ACTIVE, accountCreated.getStatus());
+            assertEquals(secretKey, accountCreated.getSecretKey());
+            assertEquals(CreditAccount.DEFAULT_CREDIT_LIMIT, accountCreated.getCreditLimit());
+            assertEquals(CreditAccount.DEFAULT_INTEREST_RATE, accountCreated.getInterestRate());
+        }catch (Exception e){
+            exc = e;
+        }
+        assertNull(exc);
     }
 
     @Test
     void createSavingsAccount_ok() {
-    }
-
-    @Test
-    void getAllCheckingAccounts_ok() {
-    }
-
-    @Test
-    void getAllSavingsAccounts_ok() {
-    }
-
-    @Test
-    void getAllCreditAccounts_ok() {
-    }
-
-    @Test
-    void getAllCheckingAccountsByUserId_ok() {
-    }
-
-    @Test
-    void getAllSavingsAccountsByUserId_ok() {
-    }
-
-    @Test
-    void getAllCreditAccountsByUserId_ok() {
-    }
-
-    @Test
-    void getAccountByAccountNumber_ok() {
-    }
-
-    @Test
-    void closeAccount_ok() {
+        Money balance = new Money(new BigDecimal("5000"));
+        String secretKey = "123456";
+        CreateSavingsAccountDto createSavingsAccountDto = CreateSavingsAccountDto
+                .builder()
+                .balance(balance)
+                .primaryOwnerId(accountHolderStudent.getId())
+                .secretKey(secretKey)
+                .build();
+        Exception exc = null;
+        try{
+            var accountCreated = accountService.createSavingsAccount(admin, createSavingsAccountDto);
+            assertEquals(balance.getAmount(), accountCreated.getBalance());
+            assertEquals(accountHolderStudent, accountCreated.getPrimaryOwner());
+            assertEquals(AccountStatus.ACTIVE, accountCreated.getStatus());
+            assertEquals(secretKey, accountCreated.getSecretKey());
+            assertEquals(SavingsAccount.DEFAULT_INTEREST_RATE, accountCreated.getInterestRate());
+            assertEquals(SavingsAccount.DEFAULT_MINIMUM_BALANCE, accountCreated.getMinimumBalance());
+        }catch (Exception e){
+            exc = e;
+        }
+        assertNull(exc);
     }
 }

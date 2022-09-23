@@ -3,7 +3,6 @@ package com.ironhack.ironbankapi.accounts.controller;
 import com.ironhack.ironbankapi.accounts.dto.*;
 import com.ironhack.ironbankapi.accounts.exception.IronbankAccountException;
 import com.ironhack.ironbankapi.accounts.service.AccountService;
-import com.ironhack.ironbankapi.accounts.service.TransactionService;
 import com.ironhack.ironbankapi.auth.service.UserService;
 import com.ironhack.ironbankapi.core.model.account.Account;
 import com.ironhack.ironbankapi.core.model.account.CheckingAccount;
@@ -18,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import java.security.Principal;
@@ -62,10 +60,10 @@ public class AccountController {
 
     @PostMapping("/credit")
     @PreAuthorize("hasAuthority('ADMIN')")
-    CreditAccount createCreditAccount(Principal principal, @Valid @RequestBody CreateCreditAccount createCreditAccount)
+    CreditAccount createCreditAccount(Principal principal, @Valid @RequestBody CreateCreditAccountDto createCreditAccountDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
-        return this.accountService.createCreditAccount(user, createCreditAccount);
+        return this.accountService.createCreditAccount(user, createCreditAccountDto);
     }
 
     @DeleteMapping("/{accountId}")

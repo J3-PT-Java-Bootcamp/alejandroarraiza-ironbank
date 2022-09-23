@@ -77,9 +77,9 @@ public class TransactionService {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0
+        if (account.checkUserIsOwner(user) && amount.compareTo(account.getBalance()) <= 0
                 && account.getStatus() == AccountStatus.ACTIVE
-        && account.getSecretKey().equals(secretKey)) {
+                && account.getSecretKey().equals(secretKey)) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -100,7 +100,8 @@ public class TransactionService {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() == AccountStatus.ACTIVE
+        if (account.checkUserIsOwner(user) && amount.compareTo(account.getBalance()) <= 0
+                && account.getStatus() == AccountStatus.ACTIVE
                 && account.getSecretKey().equals(secretKey)) {
             transactionResult = TransactionResult.EXECUTED;
         }
@@ -123,7 +124,8 @@ public class TransactionService {
     }
 
     @Transactional
-    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount, User user, String secretKey) {
+    public TransactionResultDto localTransfer(Account origin, Account destination, BigDecimal amount, User user,
+            String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
@@ -161,13 +163,13 @@ public class TransactionService {
 
     @Transactional
     public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
-                                                   BigDecimal amount, User user, String secretKey) {
+            BigDecimal amount, User user, String secretKey) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
         Transaction transaction = null;
         if (origin != null) {
             if (origin.getBalance().compareTo(amount) >= 0 && origin.getStatus() == AccountStatus.ACTIVE
-            && origin.getSecretKey().equals(secretKey)) {
+                    && origin.getSecretKey().equals(secretKey) && externalAccountHash != null) {
                 transactionResult = TransactionResult.EXECUTED;
             }
 
@@ -182,7 +184,8 @@ public class TransactionService {
         }
         if (destination != null) {
 
-            if (destination.getStatus() == AccountStatus.ACTIVE) {
+            if (destination.getStatus() == AccountStatus.ACTIVE
+                    && externalAccountHash.equals(user.getExternalAccount())) {
                 transactionResult = TransactionResult.EXECUTED;
             }
 
@@ -194,10 +197,6 @@ public class TransactionService {
                     .user(user)
                     .externalAccountHash(externalAccountHash)
                     .build();
-        }
-
-        if (!externalAccountHash.equals(user.getExternalAccount())) {
-            transactionResult = TransactionResult.REJECTED;
         }
 
         transactionRepository.save(transaction);
