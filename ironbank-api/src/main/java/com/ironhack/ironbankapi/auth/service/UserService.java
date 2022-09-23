@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+
     private final FirebaseRepository firebaseRepository;
 
     public UserService(UserRepository userRepository, FirebaseRepository firebaseRepository) {

@@ -9,8 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class IronbankApiConfig implements WebMvcConfigurer {
 
-    @Autowired
+    final
     RequestLoggingInterceptor requestLoggingInterceptor;
+
+    public IronbankApiConfig(RequestLoggingInterceptor requestLoggingInterceptor) {
+        this.requestLoggingInterceptor = requestLoggingInterceptor;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Table(name = "users")
 @Builder
 @ToString
+@EqualsAndHashCode
 public class User {
 
         /**

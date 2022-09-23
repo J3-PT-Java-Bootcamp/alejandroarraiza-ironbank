@@ -31,18 +31,14 @@ public class AccountController {
 
     private final UserService userService;
     private final AccountService accountService;
-    private final TransactionService transactionService;
 
-    public AccountController(UserService userService, AccountService accountService,
-            TransactionService transactionService) {
+    public AccountController(UserService userService, AccountService accountService) {
         this.userService = userService;
         this.accountService = accountService;
-        this.transactionService = transactionService;
     }
 
     @PostMapping("/checking")
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Transactional
     CheckingAccount createCheckingAccount(Principal principal,
             @Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto)
             throws IronbankAccountException {
@@ -52,42 +48,32 @@ public class AccountController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        var account = this.accountService.createCheckingAccount(createCheckingAccountDto);
-        transactionService.logAccountCreated(account, createCheckingAccountDto.getBalance().getAmount(), user);
-        return account;
+        return this.accountService.createCheckingAccount(user, createCheckingAccountDto);
     }
 
     @PostMapping("/savings")
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Transactional
     SavingsAccount createSavingsAccount(Principal principal,
             @Valid @RequestBody CreateSavingsAccountDto createSavingsAccountDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
-        var account = this.accountService.createSavingsAccount(createSavingsAccountDto);
-        transactionService.logAccountCreated(account, createSavingsAccountDto.getBalance().getAmount(), user);
-        return account;
+        return this.accountService.createSavingsAccount(user, createSavingsAccountDto);
     }
 
     @PostMapping("/credit")
     @PreAuthorize("hasAuthority('ADMIN')")
-    @Transactional
     CreditAccount createCreditAccount(Principal principal, @Valid @RequestBody CreateCreditAccount createCreditAccount)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
-        var account = this.accountService.createCreditAccount(createCreditAccount);
-        transactionService.logAccountCreated(account, createCreditAccount.getBalance().getAmount(), user);
-        return account;
+        return this.accountService.createCreditAccount(user, createCreditAccount);
     }
 
     @DeleteMapping("/{accountId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Transactional
     void deleteAccount(Principal principal, @PathVariable String accountId) throws IronbankAccountException {
         var user = userService.getUserById(principal.getName());
-        var account = accountService.closeAccount(accountId, user);
-        transactionService.logAccountClosed(account, user);
+        accountService.closeAccount(accountId, user);
     }
 
 

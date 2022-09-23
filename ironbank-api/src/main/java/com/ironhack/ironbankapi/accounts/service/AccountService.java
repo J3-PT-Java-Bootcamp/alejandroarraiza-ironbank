@@ -1,6 +1,5 @@
 package com.ironhack.ironbankapi.accounts.service;
 
-import com.google.api.Http;
 import com.ironhack.ironbankapi.accounts.dto.CreateCheckingAccountDto;
 import com.ironhack.ironbankapi.accounts.dto.CreateCreditAccount;
 import com.ironhack.ironbankapi.accounts.dto.CreateSavingsAccountDto;
@@ -38,17 +37,22 @@ public class AccountService {
 
     final AccountNumberRepository accountNumberRepository;
 
+    final TransactionService transactionService;
+
+
     public AccountService(UserRepository userRepository, CheckingAccountRepository checkingAccountRepository,
-            CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository,
-            AccountNumberRepository accountNumberRepository, TransactionService transactionService) {
+                          CreditAccountRepository creditAccountRepository, SavingsAccountRepository savingsAccountRepository,
+                          AccountNumberRepository accountNumberRepository, TransactionService transactionService) {
         this.userRepository = userRepository;
         this.checkingAccountRepository = checkingAccountRepository;
         this.creditAccountRepository = creditAccountRepository;
         this.savingsAccountRepository = savingsAccountRepository;
         this.accountNumberRepository = accountNumberRepository;
+        this.transactionService = transactionService;
     }
 
-    public CheckingAccount createCheckingAccount(CreateCheckingAccountDto createCheckingAccountDto)
+
+    public CheckingAccount createCheckingAccount(User user, CreateCheckingAccountDto createCheckingAccountDto)
             throws IronbankAccountException {
 
         if (createCheckingAccountDto.getBalance().getAmount()
@@ -62,10 +66,16 @@ public class AccountService {
             throw new IronbankAccountException("Only Account Holders can open accounts");
         }
 
-        var secondaryOwner = userRepository.findById(createCheckingAccountDto.getSecondaryOwnerId());
+        User secondaryOwner = null;
 
-        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
-            throw new IronbankAccountException("Only Account Holders can open accounts");
+        if(createCheckingAccountDto.getSecondaryOwnerId() != null) {
+            var secondaryOwnerOpt = userRepository.findById(createCheckingAccountDto.getSecondaryOwnerId());
+
+            if (secondaryOwnerOpt.isPresent() && secondaryOwnerOpt.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+                throw new IronbankAccountException("Only Account Holders can open accounts");
+            } else if(secondaryOwnerOpt.isPresent()) {
+                secondaryOwner = secondaryOwnerOpt.get();
+            }
         }
 
         final var primaryAge = Period.between(primaryOwner.getDateOfBirth(), LocalDate.now()).getYears();
@@ -76,7 +86,7 @@ public class AccountService {
         var account = new CheckingAccount(
                 accountNumber,
                 primaryOwner,
-                secondaryOwner.orElse(null),
+                secondaryOwner,
                 AccountStatus.ACTIVE,
                 createCheckingAccountDto.getSecretKey(),
                 primaryAge < CheckingAccount.STUDENT_AGE_LIMIT ? CheckingAccountType.STUDENT
@@ -89,11 +99,14 @@ public class AccountService {
 
         account = checkingAccountRepository.save(account);
 
-        return account;
+        transactionService.logAccountCreated(account, createCheckingAccountDto.getBalance().getAmount(), user);
+
+        return (CheckingAccount) getAccountByAccountNumber(account.getAccountNumber().getIban());
 
     }
 
-    public CreditAccount createCreditAccount(CreateCreditAccount createCreditAccount) throws IronbankAccountException {
+
+    public CreditAccount createCreditAccount(User user, CreateCreditAccount createCreditAccount) throws IronbankAccountException {
 
         if (createCreditAccount.getCreditLimit() != null && createCreditAccount.getCreditLimit().getAmount()
                 .compareTo(CreditAccount.MAX_CREDIT_LIMIT.getAmount()) > 0) {
@@ -122,10 +135,16 @@ public class AccountService {
             throw new IronbankAccountException("Only Account Holders can open accounts");
         }
 
-        var secondaryOwner = userRepository.findById(createCreditAccount.getSecondaryOwnerId());
+        User secondaryOwner = null;
 
-        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
-            throw new IronbankAccountException("Only Account Holders can open accounts");
+        if(createCreditAccount.getSecondaryOwnerId() != null) {
+            var secondaryOwnerOpt = userRepository.findById(createCreditAccount.getSecondaryOwnerId());
+
+            if (secondaryOwnerOpt.isPresent() && secondaryOwnerOpt.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+                throw new IronbankAccountException("Only Account Holders can open accounts");
+            } else if(secondaryOwnerOpt.isPresent()) {
+                secondaryOwner = secondaryOwnerOpt.get();
+            }
         }
 
         AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
@@ -134,7 +153,7 @@ public class AccountService {
         var account = new CreditAccount(
                 accountNumber,
                 primaryOwner,
-                secondaryOwner.orElse(null),
+                secondaryOwner,
                 AccountStatus.ACTIVE,
                 createCreditAccount.getSecretKey(),
                 createCreditAccount.getCreditLimit(),
@@ -142,11 +161,14 @@ public class AccountService {
 
         account = creditAccountRepository.save(account);
 
-        return account;
+        transactionService.logAccountCreated(account, createCreditAccount.getBalance().getAmount(), user);
+
+        return (CreditAccount) getAccountByAccountNumber(account.getAccountNumber().getIban());
 
     }
 
-    public SavingsAccount createSavingsAccount(CreateSavingsAccountDto createSavingsAccountDto)
+
+    public SavingsAccount createSavingsAccount(User user, CreateSavingsAccountDto createSavingsAccountDto)
             throws IronbankAccountException {
 
         if (createSavingsAccountDto.getInterestRate() != null
@@ -176,10 +198,16 @@ public class AccountService {
             throw new IronbankAccountException("Only Account Holders can open accounts");
         }
 
-        var secondaryOwner = userRepository.findById(createSavingsAccountDto.getSecondaryOwnerId());
+        User secondaryOwner = null;
 
-        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
-            throw new IronbankAccountException("Only Account Holders can open accounts");
+        if(createSavingsAccountDto.getSecondaryOwnerId() != null) {
+            var secondaryOwnerOpt = userRepository.findById(createSavingsAccountDto.getSecondaryOwnerId());
+
+            if (secondaryOwnerOpt.isPresent() && secondaryOwnerOpt.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+                throw new IronbankAccountException("Only Account Holders can open accounts");
+            } else if(secondaryOwnerOpt.isPresent()) {
+                secondaryOwner = secondaryOwnerOpt.get();
+            }
         }
 
         AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
@@ -188,7 +216,7 @@ public class AccountService {
         var account = new SavingsAccount(
                 accountNumber,
                 primaryOwner,
-                secondaryOwner.orElse(null),
+                secondaryOwner,
                 AccountStatus.ACTIVE,
                 createSavingsAccountDto.getSecretKey(),
                 createSavingsAccountDto.getMinimumBalance(),
@@ -196,7 +224,9 @@ public class AccountService {
 
         account = savingsAccountRepository.save(account);
 
-        return account;
+        transactionService.logAccountCreated(account, createSavingsAccountDto.getBalance().getAmount(), user);
+
+        return (SavingsAccount) getAccountByAccountNumber(account.getAccountNumber().getIban());
 
     }
 
@@ -279,6 +309,9 @@ public class AccountService {
         }else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+
+        transactionService.logAccountClosed(account, user);
+
         return account;
     }
 }

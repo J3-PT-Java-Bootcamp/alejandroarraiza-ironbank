@@ -1,5 +1,6 @@
 package com.ironhack.ironbankapi.core.model.common;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.Currency;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Money {
 
     private static final Currency currency = Currency.getInstance("EUR");
