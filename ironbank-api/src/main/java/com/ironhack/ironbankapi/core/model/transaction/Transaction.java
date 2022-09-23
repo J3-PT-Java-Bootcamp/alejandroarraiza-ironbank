@@ -46,4 +46,6 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionResult transactionResult;
 
+    private String externalAccountHash;
+
 }

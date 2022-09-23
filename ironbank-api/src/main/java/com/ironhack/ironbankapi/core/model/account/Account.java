@@ -64,4 +64,6 @@ public abstract class Account {
         return primaryOwner.getId().equals(user.getId())
                 || (secondaryOwner != null && secondaryOwner.getId().equals(user.getId()));
     }
+
+    public abstract boolean validateNewBalance(BigDecimal newBalance);
 }

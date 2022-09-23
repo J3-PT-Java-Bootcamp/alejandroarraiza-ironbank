@@ -45,6 +45,11 @@ public class AccountController {
             @Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
+
+        if(user.getUserRole() != UserRole.ACCOUNT_HOLDER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
         var account = this.accountService.createCheckingAccount(createCheckingAccountDto);
         transactionService.logAccountCreated(account, createCheckingAccountDto.getBalance().getAmount(), user);
         return account;
@@ -87,7 +92,8 @@ public class AccountController {
     Money getAccountBalance(Principal principal, @PathVariable String accountNumber) throws IronbankAccountException {
         var user = userService.getUserById(principal.getName());
         var account = accountService.getAccountByAccountNumber(accountNumber);
-        if (account.checkUserIsOwner(user)) {
+        if (account.checkUserIsOwner(user)
+                || user.getUserRole() == UserRole.ADMIN) {
             return new Money(account.getBalance());
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -97,7 +103,7 @@ public class AccountController {
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     List<Account> getAllAccounts() {
-        List<Account> list = new ArrayList<Account>();
+        List<Account> list = new ArrayList<>();
         list.addAll(accountService.getAllCheckingAccounts());
         list.addAll(accountService.getAllSavingsAccounts());
         list.addAll(accountService.getAllCreditAccounts());
@@ -106,7 +112,7 @@ public class AccountController {
 
     @GetMapping("/by-user")
     List<Account> getUserAccounts(Principal principal) {
-        List<Account> list = new ArrayList<Account>();
+        List<Account> list = new ArrayList<>();
         list.addAll(accountService.getAllCheckingAccountsByUserId(principal.getName()));
         list.addAll(accountService.getAllSavingsAccountsByUserId(principal.getName()));
         list.addAll(accountService.getAllCreditAccountsByUserId(principal.getName()));

@@ -2,6 +2,7 @@ package com.ironhack.ironbankapi.accounts.service;
 
 import com.ironhack.ironbankapi.accounts.dto.TransactionResultDto;
 import com.ironhack.ironbankapi.core.model.account.Account;
+import com.ironhack.ironbankapi.core.model.account.AccountStatus;
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.transaction.Transaction;
 import com.ironhack.ironbankapi.core.model.transaction.TransactionResult;
@@ -10,10 +11,9 @@ import com.ironhack.ironbankapi.core.model.user.User;
 import com.ironhack.ironbankapi.core.repository.transaction.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-
-import javax.transaction.Transactional;
 
 @Service
 public class TransactionService {
@@ -60,11 +60,9 @@ public class TransactionService {
 
     public TransactionResultDto withdraw(Account account, BigDecimal amount, User user) {
 
-        // TODO validation
-
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0) {
+        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() != AccountStatus.FROZEN) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -83,11 +81,9 @@ public class TransactionService {
 
     public TransactionResultDto deposit(Account account, BigDecimal amount, User user) {
 
-        // TODO validation
-
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (amount.compareTo(account.getBalance()) <= 0) {
+        if (amount.compareTo(account.getBalance()) <= 0 && account.getStatus() != AccountStatus.FROZEN) {
             transactionResult = TransactionResult.EXECUTED;
         }
 
@@ -113,10 +109,9 @@ public class TransactionService {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
 
-        if (origin.getBalance().compareTo(amount) >= 0 && origin.checkUserIsOwner(user)) {
+        if (origin.getBalance().compareTo(amount) >= 0 && origin.checkUserIsOwner(user) && origin.getStatus() != AccountStatus.FROZEN && destination.getStatus() != AccountStatus.FROZEN) {
             transactionResult = TransactionResult.EXECUTED;
         }
-        // TODO VALIDATION
 
         Transaction transactionDestination = Transaction.builder()
                 .transactionType(TransactionType.LOCAL_TRANSFER)
@@ -144,15 +139,14 @@ public class TransactionService {
 
     @Transactional
     public TransactionResultDto thirdPartyTransfer(String externalAccountHash, Account origin, Account destination,
-            BigDecimal amount, User user) {
+                                                   BigDecimal amount, User user) {
 
         TransactionResult transactionResult = TransactionResult.REJECTED;
         Transaction transaction = null;
         if (origin != null) {
-            if (origin.getBalance().compareTo(amount) >= 0) {
+            if (origin.getBalance().compareTo(amount) >= 0 && origin.getStatus() != AccountStatus.FROZEN) {
                 transactionResult = TransactionResult.EXECUTED;
             }
-            // TODO VALIDATION
 
             transaction = Transaction.builder()
                     .transactionType(TransactionType.THIRD_PARTY_TRANSFER)
@@ -160,10 +154,14 @@ public class TransactionService {
                     .accountNumberDestination(origin.getAccountNumber())
                     .amount(new Money(amount.negate()))
                     .user(user)
+                    .externalAccountHash(externalAccountHash)
                     .build();
         }
         if (destination != null) {
-            // TODO VALIDATION
+
+            if (destination.getStatus() != AccountStatus.FROZEN) {
+                transactionResult = TransactionResult.EXECUTED;
+            }
 
             transaction = Transaction.builder()
                     .transactionType(TransactionType.THIRD_PARTY_TRANSFER)
@@ -171,7 +169,12 @@ public class TransactionService {
                     .accountNumberDestination(destination.getAccountNumber())
                     .amount(new Money(amount))
                     .user(user)
+                    .externalAccountHash(externalAccountHash)
                     .build();
+        }
+
+        if (!externalAccountHash.equals(user.getExternalAccount())) {
+            transactionResult = TransactionResult.REJECTED;
         }
 
         transactionRepository.save(transaction);

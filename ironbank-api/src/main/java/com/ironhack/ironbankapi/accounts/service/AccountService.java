@@ -60,9 +60,13 @@ public class AccountService {
             throw new IronbankAccountException("Only Account Holders can open accounts");
         }
 
-        final var primaryAge = Period.between(primaryOwner.getDateOfBirth(), LocalDate.now()).getYears();
-
         var secondaryOwner = userRepository.findById(createCheckingAccountDto.getSecondaryOwnerId());
+
+        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+            throw new IronbankAccountException("Only Account Holders can open accounts");
+        }
+
+        final var primaryAge = Period.between(primaryOwner.getDateOfBirth(), LocalDate.now()).getYears();
 
         AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
         accountNumberRepository.save(accountNumber);
@@ -118,6 +122,10 @@ public class AccountService {
 
         var secondaryOwner = userRepository.findById(createCreditAccount.getSecondaryOwnerId());
 
+        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+            throw new IronbankAccountException("Only Account Holders can open accounts");
+        }
+
         AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
         accountNumberRepository.save(accountNumber);
 
@@ -167,6 +175,10 @@ public class AccountService {
         }
 
         var secondaryOwner = userRepository.findById(createSavingsAccountDto.getSecondaryOwnerId());
+
+        if (secondaryOwner.isPresent() && secondaryOwner.get().getUserRole() != UserRole.ACCOUNT_HOLDER) {
+            throw new IronbankAccountException("Only Account Holders can open accounts");
+        }
 
         AccountNumber accountNumber = new AccountNumber(Iban.random().toString());
         accountNumberRepository.save(accountNumber);

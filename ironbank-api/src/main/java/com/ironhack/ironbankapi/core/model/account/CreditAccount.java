@@ -41,4 +41,15 @@ public class CreditAccount extends Account {
         this.creditLimit = creditLimit;
         this.interestRate = interestRate;
     }
+
+    @Override
+    public boolean validateNewBalance(BigDecimal newBalance) {
+        boolean isValid = true;
+
+        if (newBalance.compareTo(this.getCreditLimit().getAmount()) > 0) {
+            return false;
+        }
+
+        return isValid;
+    }
 }

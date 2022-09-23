@@ -42,4 +42,15 @@ public class SavingsAccount extends Account {
         this.minimumBalance = minimumBalance;
         this.interestRate = interestRate;
     }
+
+    @Override
+    public boolean validateNewBalance(BigDecimal newBalance) {
+        boolean isValid = true;
+
+        if (newBalance.compareTo(this.getMinimumBalance().getAmount()) < 0) {
+            return false;
+        }
+
+        return isValid;
+    }
 }
