@@ -34,7 +34,7 @@ And after startup:
 
 - The API will be available on <http://localhost:8081>
 - The OpenAPI schema is available on <http://localhost:8081/docs/api>
-- The Swagger UI to test and see the OpenAPI schema is available on <http://localhost:8081/docs/api>
+- The Swagger UI to test and see the OpenAPI schema is available on <http://localhost:8081/docs/swagger-ui/index.html>
 
 ## Documentation
 
