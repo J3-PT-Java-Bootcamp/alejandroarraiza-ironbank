@@ -3,16 +3,12 @@ package com.ironhack.ironbankapi.core.model.account;
 import com.ironhack.ironbankapi.core.model.common.Money;
 import com.ironhack.ironbankapi.core.model.user.User;
 import lombok.*;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = SavingsAccount.TABLE_NAME)
-@SQLDelete(sql = "UPDATE " + SavingsAccount.TABLE_NAME + " SET deletedAt = SYSDATE() WHERE id=?")
-@Where(clause = "deleted_at IS NULL")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

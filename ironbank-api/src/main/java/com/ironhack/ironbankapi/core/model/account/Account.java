@@ -43,8 +43,6 @@ public abstract class Account {
     @UpdateTimestamp
     private Instant updatedAt;
 
-    private Instant deletedAt;
-
     private String secretKey;
 
     @Enumerated(EnumType.STRING)

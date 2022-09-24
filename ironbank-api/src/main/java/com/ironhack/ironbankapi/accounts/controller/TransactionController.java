@@ -29,7 +29,7 @@ public class TransactionController {
     final TransactionService transactionService;
 
     public TransactionController(UserService userService, AccountService accountService,
-                                 TransactionService transactionService) {
+            TransactionService transactionService) {
         this.userService = userService;
         this.accountService = accountService;
         this.transactionService = transactionService;
@@ -43,7 +43,7 @@ public class TransactionController {
 
     @PostMapping("/local-transfer")
     TransactionResultDto transfer(Principal principal,
-                                  @Valid @RequestBody TransactionLocalTransferRequestDto transactionTransferRequestDto)
+            @Valid @RequestBody TransactionLocalTransferRequestDto transactionTransferRequestDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
         Account origin = accountService
@@ -56,7 +56,8 @@ public class TransactionController {
         Account destination = accountService
                 .getAccountByAccountNumber(transactionTransferRequestDto.getDestinationAccountNumber());
 
-        return transactionService.localTransfer(origin, destination, transactionTransferRequestDto.getAmount(), user, transactionTransferRequestDto.getSecretKey());
+        return transactionService.localTransfer(origin, destination, transactionTransferRequestDto.getAmount(), user,
+                transactionTransferRequestDto.getSecretKey());
     }
 
     @PostMapping("/third-party-transfer")
@@ -82,7 +83,8 @@ public class TransactionController {
                     .getAccountByAccountNumber(transactionThirdPartyTransferRequestDto.getDestinationAccountNumber());
         }
 
-        if ((origin == null && destination == null) || (origin != null && destination != null) || transactionThirdPartyTransferRequestDto.getExternalAccountHash() == null) {
+        if ((origin == null && destination == null) || (origin != null && destination != null)
+                || transactionThirdPartyTransferRequestDto.getExternalAccountHash() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         } else {
             return transactionService.thirdPartyTransfer(
@@ -95,7 +97,7 @@ public class TransactionController {
 
     @PostMapping("/{accountNumber}/withdraw")
     TransactionResultDto withdraw(Principal principal, @PathVariable String accountNumber,
-                                  @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
 
         Account account = accountService.getAccountByAccountNumber(accountNumber);
@@ -104,13 +106,14 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return transactionService.withdraw(account, transactionRequestDto.getAmount(), user, transactionRequestDto.getSecretKey());
+        return transactionService.withdraw(account, transactionRequestDto.getAmount(), user,
+                transactionRequestDto.getSecretKey());
 
     }
 
     @PostMapping("/{accountNumber}/deposit")
     TransactionResultDto deposit(Principal principal, @PathVariable String accountNumber,
-                                 @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
 
         Account account = accountService.getAccountByAccountNumber(accountNumber);
@@ -119,13 +122,14 @@ public class TransactionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        return transactionService.deposit(account, transactionRequestDto.getAmount(), user, transactionRequestDto.getSecretKey());
+        return transactionService.deposit(account, transactionRequestDto.getAmount(), user,
+                transactionRequestDto.getSecretKey());
     }
 
     @PostMapping("/{accountNumber}/update-balance")
     @PreAuthorize("hasAuthority('ADMIN')")
     TransactionResultDto updateBalance(Principal principal, @PathVariable String accountNumber,
-                                       @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
+            @Valid @RequestBody TransactionRequestDto transactionRequestDto) throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
 
         Account account = accountService.getAccountByAccountNumber(accountNumber);
