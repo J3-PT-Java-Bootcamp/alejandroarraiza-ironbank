@@ -35,20 +35,37 @@ public class AccountController {
         this.accountService = accountService;
     }
 
+    /**
+     * Allows an admin to create a checking account
+     *
+     * @param principal                User requesting the creation, obtained from
+     *                                 the JWT
+     * @param createCheckingAccountDto DTO that contains all the necessary data to
+     *                                 create the account
+     * @return Account created
+     * @throws IronbankAccountException In case the DTO does not pass any of the
+     *                                  needed validations
+     */
     @PostMapping("/checking")
     @PreAuthorize("hasAuthority('ADMIN')")
     CheckingAccount createCheckingAccount(Principal principal,
             @Valid @RequestBody CreateCheckingAccountDto createCheckingAccountDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
-
-        if(user.getUserRole() != UserRole.ACCOUNT_HOLDER) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
         return this.accountService.createCheckingAccount(user, createCheckingAccountDto);
     }
 
+    /**
+     * Allows an admin to create a savings account
+     *
+     * @param principal               User requesting the creation, obtained from
+     *                                the JWT
+     * @param createSavingsAccountDto DTO that contains all the necessary data to
+     *                                create the account
+     * @return Account created
+     * @throws IronbankAccountException In case the DTO does not pass any of the
+     *                                  needed validations
+     */
     @PostMapping("/savings")
     @PreAuthorize("hasAuthority('ADMIN')")
     SavingsAccount createSavingsAccount(Principal principal,
@@ -58,9 +75,21 @@ public class AccountController {
         return this.accountService.createSavingsAccount(user, createSavingsAccountDto);
     }
 
+    /**
+     * Allows an admin to create a credit account
+     *
+     * @param principal              User requesting the creation, obtained from
+     *                               the JWT
+     * @param createCreditAccountDto DTO that contains all the necessary data to
+     *                               create the account
+     * @return Account created
+     * @throws IronbankAccountException In case the DTO does not pass any of the
+     *                                  needed validations
+     */
     @PostMapping("/credit")
     @PreAuthorize("hasAuthority('ADMIN')")
-    CreditAccount createCreditAccount(Principal principal, @Valid @RequestBody CreateCreditAccountDto createCreditAccountDto)
+    CreditAccount createCreditAccount(Principal principal,
+            @Valid @RequestBody CreateCreditAccountDto createCreditAccountDto)
             throws IronbankAccountException {
         User user = userService.getUserById(principal.getName());
         return this.accountService.createCreditAccount(user, createCreditAccountDto);
@@ -73,7 +102,6 @@ public class AccountController {
         var user = userService.getUserById(principal.getName());
         accountService.closeAccount(accountId, user);
     }
-
 
     @GetMapping("/{accountNumber}")
     Account getAccount(Principal principal, @PathVariable String accountNumber) throws IronbankAccountException {

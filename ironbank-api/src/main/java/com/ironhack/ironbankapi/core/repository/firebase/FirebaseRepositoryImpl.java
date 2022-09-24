@@ -38,7 +38,7 @@ public class FirebaseRepositoryImpl implements FirebaseRepository {
   void init() throws IOException {
 
     FileInputStream serviceAccount = new FileInputStream(
-        "resources/ironbank-b9a27-firebase-adminsdk-iv02l-ab4cbd704b.json");
+        "resources/firebase-private-key.json");
 
     FirebaseOptions options = new FirebaseOptions.Builder()
         .setCredentials(GoogleCredentials.fromStream(serviceAccount))

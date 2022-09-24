@@ -1,2 +1,2 @@
-login_url=
+firebase.login-url=https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword
 api_key=

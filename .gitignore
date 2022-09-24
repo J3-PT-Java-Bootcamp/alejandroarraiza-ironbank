@@ -3,3 +3,4 @@ dev_env/
 .idea/
 resources/
 .env
+.vscode
