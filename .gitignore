@@ -1,3 +1,6 @@
 .DS_Store
 dev_env/
 .idea/
+resources/
+.env
+.vscode
